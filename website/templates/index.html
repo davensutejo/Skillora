@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Adaptive learning platform revolutionizing education with AI-powered personalization">
+    <meta name="theme-color" content="#5D3FD3">
+    <title>Skillora - Empowering Minds, Elevating Learning</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body id="top">
+    <!-- Loader -->
+    <div class="loader">
+        <div class="loader__content">
+            <div class="logo-container">
+                <div class="logo-circle"></div>
+                <div class="logo-particles"></div>
+                <div class="logo-letter">S</div>
+            </div>
+            <h1>SKILLORA</h1>
+            <p class="loader__subheader">Empowering Minds, Elevating Learning</p>
+        </div>
+    </div>
+
+    <!-- Three.js Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">Skillora</div>
+        <div class="nav-links desktop-nav">
+            <a href="#top">Home</a>
+            <a href="#feature1">Features</a>
+            <a href="#contact">Contact</a>
+        </div>
+        <div class="mobile-menu-toggle">
+            <div class="bar bar1"></div>
+            <div class="bar bar2"></div>
+            <div class="bar bar3"></div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav">
+        <a href="#top">Home</a>
+        <a href="#feature1">Features</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <!-- Hero SVG Elements -->
+            <div class="hero-svg">
+                <svg class="hero-svg-1 blob-morph-1 glow-effect scale-on-scroll" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#7B5FFF" class="gradient-stop-1" />
+                            <stop offset="100%" stop-color="#5D3FD3" class="gradient-stop-2" />
+                        </linearGradient>
+                        <filter id="glow1">
+                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path fill="url(#gradient1)" filter="url(#glow1)" d="M40.2,-62.4C53.5,-56.7,66.8,-48.9,74.7,-37.2C82.5,-25.5,84.9,-9.8,83.3,5.4C81.7,20.6,76.2,35.3,66.8,46.9C57.4,58.4,44.1,66.9,29.6,72.1C15.1,77.3,-0.5,79.4,-16.2,76.6C-31.9,73.8,-47.6,66.2,-58.2,54.2C-68.9,42.3,-74.4,26,-75.8,9.8C-77.1,-6.5,-74.2,-22.7,-66.8,-36.4C-59.3,-50.1,-47.2,-61.2,-33.9,-67C-20.6,-72.7,-6,-73.1,8.2,-72.1C22.5,-71.1,26.8,-68.2,40.2,-62.4Z" transform="translate(100 100)" />
+                </svg>
+                <svg class="hero-svg-2 blob-morph-2 glow-effect scroll-rotate" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="gradient2" cx="50%" cy="50%" r="70%" fx="30%" fy="30%">
+                            <stop offset="0%" stop-color="#9D7EFF" class="gradient-stop-1" />
+                            <stop offset="70%" stop-color="#5D3FD3" class="gradient-stop-2" />
+                            <stop offset="100%" stop-color="#4320B0" class="gradient-stop-3" />
+                        </radialGradient>
+                        <filter id="glow2">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path fill="url(#gradient2)" filter="url(#glow2)" d="M48.6,-75.5C64.9,-69.2,81.3,-59.9,89.6,-45.9C97.9,-31.9,98.1,-13.3,95.1,4.7C92.2,22.6,86.2,39.8,75.3,54.7C64.5,69.6,48.8,82.1,31.5,87.5C14.2,92.8,-4.7,91,-22.4,85.7C-40.1,80.4,-56.5,71.6,-66.4,58.3C-76.3,45,-79.7,27.1,-81.2,9.2C-82.7,-8.7,-82.4,-26.6,-75.3,-41.9C-68.2,-57.2,-54.3,-69.9,-39.2,-76.6C-24.1,-83.3,-7.8,-84.1,8.7,-84C25.1,-84,32.3,-81.9,48.6,-75.5Z" transform="translate(100 100)" />
+                </svg>
+                <svg class="hero-svg-3 blob-morph-3 glow-effect scale-on-scroll" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#5D3FD3" class="gradient-stop-1" />
+                            <stop offset="50%" stop-color="#7A5CF5" class="gradient-stop-2" />
+                            <stop offset="100%" stop-color="#5D3FD3" class="gradient-stop-3" />
+                        </linearGradient>
+                        <filter id="glow3">
+                            <feGaussianBlur stdDeviation="2.5" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path fill="url(#gradient3)" filter="url(#glow3)" d="M39.3,-65.2C53.4,-60.5,68.9,-54.7,76.9,-43.7C84.9,-32.6,85.4,-16.3,83,-1.4C80.6,13.5,75.2,27.1,67.5,39.6C59.8,52.2,49.7,63.8,37.2,70.4C24.7,76.9,9.9,78.5,-3.8,76.7C-17.5,74.9,-30,69.7,-41.7,62.3C-53.4,54.9,-64.2,45.3,-70.4,33.2C-76.6,21.1,-78.2,6.4,-76.3,-7.5C-74.4,-21.5,-68.9,-34.7,-60,-45.9C-51.1,-57.1,-38.7,-66.2,-25.8,-71.4C-12.9,-76.6,0.6,-77.8,12.8,-75.4C25,-73,33,-64,39.3,-65.2Z" transform="translate(100 100)" />
+                </svg>
+            </div>
+
+            <!-- Parallax Elements for Hero -->
+            <div class="parallax-wrapper hero-parallax">
+                <!-- Will be populated with JS -->
+            </div>
+
+            <div class="hero-text">
+                <h1>Empowering Minds, Elevating Learning</h1>
+                <p>Skillora is an adaptive learning platform revolutionizing education with AI-powered personalization, making learning more efficient, engaging, and accessible.</p>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll to explore</span>
+                <div class="arrow">↓</div>
+            </div>
+        </section>
+
+        <!-- Horizontal Scrolling Features Section -->
+        <section class="horizontal-section">
+            <!-- Feature 1 -->
+            <div class="feature-panel" id="feature1">
+                <div class="feature-number">01</div>
+                <div class="feature-svg">
+                    <svg class="feature-svg-element feature-svg-1 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="feature-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#8B6FFF" />
+                                <stop offset="100%" stop-color="#5D3FD3" />
+                            </linearGradient>
+                            <filter id="feature-glow1">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient1)" filter="url(#feature-glow1)" d="M41.3,-69.4C52.4,-62.8,59.9,-49.1,66.5,-35.3C73.1,-21.6,78.8,-7.8,78.2,5.8C77.7,19.5,70.9,33,61.7,44.5C52.5,56,40.8,65.5,27.2,70.3C13.7,75,0,75,-13.1,72.1C-26.2,69.3,-38.6,63.7,-48.1,54.7C-57.5,45.8,-64,33.5,-67.6,20.2C-71.3,6.8,-72.2,-7.6,-69.6,-21.6C-67,-35.6,-60.9,-49.2,-50.1,-56.8C-39.3,-64.4,-23.9,-66,-9.7,-65.4C4.6,-64.8,18.9,-61.9,31.1,-63.3C43.2,-64.8,53.2,-70.5,41.3,-69.4Z" transform="translate(100 100)" />
+                    </svg>
+                    <svg class="feature-svg-element feature-svg-2 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="feature-gradient2" cx="50%" cy="50%" r="70%" fx="30%" fy="30%">
+                                <stop offset="0%" stop-color="#A58BFF" />
+                                <stop offset="70%" stop-color="#5D3FD3" />
+                                <stop offset="100%" stop-color="#4320B0" />
+                            </radialGradient>
+                            <filter id="feature-glow2">
+                                <feGaussianBlur stdDeviation="2" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient2)" filter="url(#feature-glow2)" d="M42.3,-73.1C54.4,-66,63.6,-54.5,71.2,-41.6C78.8,-28.7,84.9,-14.3,84.1,-0.5C83.3,13.4,75.7,26.8,67.1,39.1C58.5,51.4,49,62.6,37.1,70.2C25.2,77.8,10.9,81.8,-3.1,81.6C-17.1,81.4,-30.9,77,-43.1,69.8C-55.3,62.6,-65.8,52.7,-73.2,40.4C-80.6,28.1,-84.8,13.5,-83.9,-0.5C-82.9,-14.6,-76.8,-28.3,-68.1,-40.3C-59.4,-52.4,-48.1,-62.8,-35.4,-69.1C-22.7,-75.5,-8.6,-77.8,3.9,-76.6C16.5,-75.3,30.2,-80.2,42.3,-73.1Z" transform="translate(100 100)" />
+                    </svg>
+                </div>
+
+                <!-- Parallax Elements for Feature 1 -->
+                <div class="parallax-wrapper feature1-parallax">
+                    <!-- Will be populated with JS -->
+                </div>
+
+                <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                <div class="feature-content">
+                    <h2>AI-Driven Coursework</h2>
+                    <p>Our machine learning algorithms analyze your learning patterns to create personalized course materials that adapt to your progress, preferences, and goals.</p>
+                    <a href="#" class="btn">Learn More</a>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-panel" id="feature2">
+                <div class="feature-number">02</div>
+                <div class="feature-svg">
+                    <svg class="feature-svg-element feature-svg-3 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="feature-gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#5D3FD3" />
+                                <stop offset="50%" stop-color="#825DF8" />
+                                <stop offset="100%" stop-color="#6447E0" />
+                            </linearGradient>
+                            <filter id="feature-glow3">
+                                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient3)" filter="url(#feature-glow3)" d="M38.1,-65.6C50.5,-60.8,62.5,-52.7,70.2,-41.2C77.9,-29.8,81.4,-14.9,80.4,-0.6C79.5,13.7,74.2,27.4,66.4,39.3C58.5,51.2,48.2,61.3,35.6,68.4C23,75.4,8.1,79.3,-6,79.5C-20.1,79.6,-33.3,76,-45.5,69.2C-57.6,62.3,-68.7,52.2,-76.3,39.4C-84,26.5,-88.3,10.9,-87.7,-4.5C-87,-19.8,-81.5,-34.8,-71.7,-44.9C-62,-55,-48,-60.2,-34.6,-64.5C-21.3,-68.8,-8.4,-72.2,3.1,-72.2C14.6,-72.3,25.7,-70.3,38.1,-65.6Z" transform="translate(100 100)" />
+                    </svg>
+                    <svg class="feature-svg-element feature-svg-4 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="feature-gradient4" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#4320B0" />
+                                <stop offset="70%" stop-color="#5D3FD3" />
+                                <stop offset="100%" stop-color="#A58BFF" />
+                            </linearGradient>
+                            <filter id="feature-glow4">
+                                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient4)" filter="url(#feature-glow4)" d="M39.3,-65.2C53.4,-60.5,68.9,-54.7,76.9,-43.7C84.9,-32.6,85.4,-16.3,83,-1.4C80.6,13.5,75.2,27.1,67.5,39.6C59.8,52.2,49.7,63.8,37.2,70.4C24.7,76.9,9.9,78.5,-3.8,76.7C-17.5,74.9,-30,69.7,-41.7,62.3C-53.4,54.9,-64.2,45.3,-70.4,33.2C-76.6,21.1,-78.2,6.4,-76.3,-7.5C-74.4,-21.5,-68.9,-34.7,-60,-45.9C-51.1,-57.1,-38.7,-66.2,-25.8,-71.4C-12.9,-76.6,0.6,-77.8,12.8,-75.4C25,-73,33,-64,39.3,-65.2Z" transform="translate(100 100)" />
+                    </svg>
+                </div>
+
+                <!-- Parallax Elements for Feature 2 -->
+                <div class="parallax-wrapper feature2-parallax">
+                    <!-- Will be populated with JS -->
+                </div>
+
+                <div class="feature-icon"><i class="fas fa-graduation-cap"></i></div>
+                <div class="feature-content">
+                    <h2>Personal Education Consultants</h2>
+                    <p>Get expert guidance for school and university choices with our AI consultants that understand your strengths, interests, and career aspirations.</p>
+                    <a href="#" class="btn">Explore</a>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-panel" id="feature3">
+                <div class="feature-number">03</div>
+                <div class="feature-svg">
+                    <svg class="feature-svg-element feature-svg-1 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="feature-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#8B6FFF" />
+                                <stop offset="100%" stop-color="#5D3FD3" />
+                            </linearGradient>
+                            <filter id="feature-glow1">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient1)" filter="url(#feature-glow1)" d="M41.3,-69.4C52.4,-62.8,59.9,-49.1,66.5,-35.3C73.1,-21.6,78.8,-7.8,78.2,5.8C77.7,19.5,70.9,33,61.7,44.5C52.5,56,40.8,65.5,27.2,70.3C13.7,75,0,75,-13.1,72.1C-26.2,69.3,-38.6,63.7,-48.1,54.7C-57.5,45.8,-64,33.5,-67.6,20.2C-71.3,6.8,-72.2,-7.6,-69.6,-21.6C-67,-35.6,-60.9,-49.2,-50.1,-56.8C-39.3,-64.4,-23.9,-66,-9.7,-65.4C4.6,-64.8,18.9,-61.9,31.1,-63.3C43.2,-64.8,53.2,-70.5,41.3,-69.4Z" transform="translate(100 100)" />
+                    </svg>
+                    <svg class="feature-svg-element feature-svg-2 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <radialGradient id="feature-gradient2" cx="50%" cy="50%" r="70%" fx="30%" fy="30%">
+                                <stop offset="0%" stop-color="#A58BFF" />
+                                <stop offset="70%" stop-color="#5D3FD3" />
+                                <stop offset="100%" stop-color="#4320B0" />
+                            </radialGradient>
+                            <filter id="feature-glow2">
+                                <feGaussianBlur stdDeviation="2" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient2)" filter="url(#feature-glow2)" d="M42.3,-73.1C54.4,-66,63.6,-54.5,71.2,-41.6C78.8,-28.7,84.9,-14.3,84.1,-0.5C83.3,13.4,75.7,26.8,67.1,39.1C58.5,51.4,49,62.6,37.1,70.2C25.2,77.8,10.9,81.8,-3.1,81.6C-17.1,81.4,-30.9,77,-43.1,69.8C-55.3,62.6,-65.8,52.7,-73.2,40.4C-80.6,28.1,-84.8,13.5,-83.9,-0.5C-82.9,-14.6,-76.8,-28.3,-68.1,-40.3C-59.4,-52.4,-48.1,-62.8,-35.4,-69.1C-22.7,-75.5,-8.6,-77.8,3.9,-76.6C16.5,-75.3,30.2,-80.2,42.3,-73.1Z" transform="translate(100 100)" />
+                    </svg>
+                </div>
+
+                <!-- Parallax Elements for Feature 3 -->
+                <div class="parallax-wrapper feature3-parallax">
+                    <!-- Will be populated with JS -->
+                </div>
+
+                <div class="feature-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="feature-content">
+                    <h2>On-Demand Personal Teachers</h2>
+                    <p>Access subject matter experts instantly whenever you have questions or need clarification, providing you with personalized support exactly when you need it.</p>
+                    <a href="#" class="btn">Connect</a>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-panel" id="feature4">
+                <div class="feature-number">04</div>
+                <div class="feature-svg">
+                    <svg class="feature-svg-element feature-svg-3 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="feature-gradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#5D3FD3" />
+                                <stop offset="50%" stop-color="#825DF8" />
+                                <stop offset="100%" stop-color="#6447E0" />
+                            </linearGradient>
+                            <filter id="feature-glow3">
+                                <feGaussianBlur stdDeviation="1.5" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient3)" filter="url(#feature-glow3)" d="M38.1,-65.6C50.5,-60.8,62.5,-52.7,70.2,-41.2C77.9,-29.8,81.4,-14.9,80.4,-0.6C79.5,13.7,74.2,27.4,66.4,39.3C58.5,51.2,48.2,61.3,35.6,68.4C23,75.4,8.1,79.3,-6,79.5C-20.1,79.6,-33.3,76,-45.5,69.2C-57.6,62.3,-68.7,52.2,-76.3,39.4C-84,26.5,-88.3,10.9,-87.7,-4.5C-87,-19.8,-81.5,-34.8,-71.7,-44.9C-62,-55,-48,-60.2,-34.6,-64.5C-21.3,-68.8,-8.4,-72.2,3.1,-72.2C14.6,-72.3,25.7,-70.3,38.1,-65.6Z" transform="translate(100 100)" />
+                    </svg>
+                    <svg class="feature-svg-element feature-svg-4 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="feature-gradient4" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#4320B0" />
+                                <stop offset="70%" stop-color="#5D3FD3" />
+                                <stop offset="100%" stop-color="#A58BFF" />
+                            </linearGradient>
+                            <filter id="feature-glow4">
+                                <feGaussianBlur stdDeviation="2.5" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                        </defs>
+                        <path fill="url(#feature-gradient4)" filter="url(#feature-glow4)" d="M39.3,-65.2C53.4,-60.5,68.9,-54.7,76.9,-43.7C84.9,-32.6,85.4,-16.3,83,-1.4C80.6,13.5,75.2,27.1,67.5,39.6C59.8,52.2,49.7,63.8,37.2,70.4C24.7,76.9,9.9,78.5,-3.8,76.7C-17.5,74.9,-30,69.7,-41.7,62.3C-53.4,54.9,-64.2,45.3,-70.4,33.2C-76.6,21.1,-78.2,6.4,-76.3,-7.5C-74.4,-21.5,-68.9,-34.7,-60,-45.9C-51.1,-57.1,-38.7,-66.2,-25.8,-71.4C-12.9,-76.6,0.6,-77.8,12.8,-75.4C25,-73,33,-64,39.3,-65.2Z" transform="translate(100 100)" />
+                    </svg>
+                </div>
+
+                <!-- Parallax Elements for Feature 4 -->
+                <div class="parallax-wrapper feature4-parallax">
+                    <!-- Will be populated with JS -->
+                </div>
+
+                <div class="feature-icon"><i class="fas fa-database"></i></div>
+                <div class="feature-content">
+                    <h2>Public Reference System</h2>
+                    <p>Our validated information database ensures you always have access to accurate, reliable knowledge that's been vetted by experts in their respective fields.</p>
+                    <a href="#" class="btn">Discover</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <div class="cta-svg">
+                <svg class="cta-svg-element cta-svg-1 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="cta-gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#A58BFF" />
+                            <stop offset="50%" stop-color="#7B5FFF" />
+                            <stop offset="100%" stop-color="#5D3FD3" />
+                        </linearGradient>
+                        <filter id="cta-glow1">
+                            <feGaussianBlur stdDeviation="5" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path fill="url(#cta-gradient1)" filter="url(#cta-glow1)" d="M47.7,-79.8C63.1,-72.8,77.8,-62.9,85.5,-49C93.2,-35.1,93.8,-17.5,91.2,-1.5C88.5,14.6,82.6,29.1,74.1,42.1C65.7,55.1,54.7,66.5,41.4,73.7C28.1,80.9,12.5,83.9,-2.3,83.2C-17.1,82.5,-31.1,78.2,-44.2,71.1C-57.3,64.1,-69.5,54.3,-77.2,41.7C-84.9,29,-88.1,13.5,-87.4,-1.8C-86.7,-17.1,-82.2,-32.2,-73.8,-44.9C-65.4,-57.5,-53.1,-67.8,-39.6,-75.3C-26.2,-82.8,-11.7,-87.6,2.5,-88.7C16.8,-89.9,32.4,-86.7,47.7,-79.8Z" transform="translate(100 100)" />
+                </svg>
+                <svg class="cta-svg-element cta-svg-2 blob-morph" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="cta-gradient2" cx="50%" cy="50%" r="70%" fx="50%" fy="50%">
+                            <stop offset="0%" stop-color="#8B6FFF" />
+                            <stop offset="70%" stop-color="#5D3FD3" />
+                            <stop offset="100%" stop-color="#3F20A7" />
+                        </radialGradient>
+                        <filter id="cta-glow2">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path fill="url(#cta-gradient2)" filter="url(#cta-glow2)" d="M37.3,-62.8C47.8,-57.6,55.4,-45.8,62.5,-33.6C69.5,-21.3,76,-8.7,76.2,4.5C76.4,17.7,70.3,31.4,61.3,42.6C52.3,53.9,40.5,62.6,27.2,69.3C13.9,76,0,80.6,-14,80.2C-28,79.8,-41.9,74.4,-52.8,65.1C-63.6,55.8,-71.3,42.6,-76.3,28.6C-81.2,14.5,-83.3,-0.4,-81.1,-15.3C-78.9,-30.2,-72.4,-45.2,-61.2,-52.8C-50,-60.5,-34.2,-60.9,-19.1,-63.9C-4.9,-66.9,4.9,-72.5,14.9,-73.1C27.4,-73.8,40.9,-69.4,37.3,-62.8Z" transform="translate(100 100)" />
+                </svg>
+            </div>
+
+            <!-- Parallax Elements for CTA -->
+            <div class="parallax-wrapper cta-parallax" id="contact">
+                <!-- Will be populated with JS -->
+            </div>
+
+            <div class="cta-content" >
+                <h2>Join the Learning Revolution</h2>
+                <p>Experience the future of education with Skillora's adaptive learning platform. Sign up today to unlock your full potential and transform the way you learn.</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('auth.signup') }}" class="btn">Sign Up Free</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline" style="background: transparent; border: 2px solid white; color: white;">Log In</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 Skillora - Transforming the Future of Learning</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.1/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.16/bundled/lenis.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+
+    const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        direction: 'vertical',
+        gestureDirection: 'vertical',
+        smooth: true,
+        smoothTouch: false,
+        touchMultiplier: 2
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1007 @@
+{% extends "base.html" %}
+
+{% block title %}Progress | Skillora{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .progress-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .progress-section {
+            background-color: var(--surface-color, #fff);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-color-dark, #333);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--primary-color, #4f46e5);
+        }
+        
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #f0f4ff 0%, #eef1ff 100%);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-icon {
+            height: 50px;
+            width: 50px;
+            background-color: var(--primary-color, #4f46e5);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, var(--primary-color, #4f46e5) 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            color: var(--text-color, #64748b);
+            font-size: 0.9rem;
+        }
+        
+        /* Progress Chart Styles */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            max-height: 300px;
+            position: relative;
+        }
+        
+        .chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 350px; /* Fixed height container */
+            margin-bottom: 20px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .chart-filter {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chart-filter-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            background-color: transparent;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .chart-filter-btn.active {
+            background-color: var(--primary-color, #4f46e5);
+            color: white;
+            border-color: var(--primary-color, #4f46e5);
+        }
+        
+        /* Activity Timeline Styles */
+        .activity-timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 8px;
+            bottom: 0;
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+        
+        .activity-item {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .activity-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .activity-dot {
+            position: absolute;
+            left: -30px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--primary-color, #4f46e5);
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 1px #e2e8f0;
+            z-index: 1;
+        }
+        
+        .activity-content {
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color, #4f46e5);
+        }
+        
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #1e293b;
+        }
+        
+        .activity-details {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .activity-time {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Course Progress Styles */
+        .course-progress-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        
+        .course-progress-item {
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-color, #4f46e5);
+        }
+        
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .course-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .course-completion {
+            font-weight: 600;
+            color: var(--primary-color, #4f46e5);
+        }
+        
+        .progress-track {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color, #4f46e5), #818cf8);
+            border-radius: 4px;
+        }
+        
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
+        /* Achievement Styles */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .achievement-card {
+            background-color: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .achievement-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .achievement-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary-color, #4f46e5) 0%, #818cf8 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            font-size: 30px;
+            color: white;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .achievement-locked .achievement-icon {
+            background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%);
+            box-shadow: 0 10px 20px rgba(148, 163, 184, 0.3);
+        }
+        
+        .achievement-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #1e293b;
+        }
+        
+        .achievement-description {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        
+        .achievement-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background-color: rgba(79, 70, 229, 0.15);
+            color: var(--primary-color, #4f46e5);
+        }
+        
+        .achievement-locked .achievement-badge {
+            background-color: rgba(148, 163, 184, 0.15);
+            color: #94a3b8;
+        }
+        
+        .achievement-locked .achievement-name,
+        .achievement-locked .achievement-description {
+            color: #94a3b8;
+        }
+        
+        /* Streak Calendar Styles */
+        .streak-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            background-color: #f1f5f9;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            position: relative;
+        }
+        
+        .calendar-day.active {
+            background-color: rgba(79, 70, 229, 0.2);
+            color: var(--primary-color, #4f46e5);
+            font-weight: 600;
+        }
+        
+        .calendar-day.today {
+            border: 2px solid var(--primary-color, #4f46e5);
+        }
+        
+        .calendar-day.active::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: var(--primary-color, #4f46e5);
+        }
+        
+        /* Milestones Styles */
+        .milestones-slider {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin: 0 -10px;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
+        }
+        
+        .milestones-slider::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .milestones-slider::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+        
+        .milestones-slider::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .milestone-card {
+            flex: 0 0 280px;
+            margin: 0 10px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f4ff 0%, #eef1ff 100%);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .milestone-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .milestone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, transparent 70%, rgba(79, 70, 229, 0.2) 100%);
+            border-radius: 0 0 0 100%;
+        }
+        
+        .milestone-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: rgba(79, 70, 229, 0.15);
+            color: var(--primary-color, #4f46e5);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .milestone-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #1e293b;
+        }
+        
+        .milestone-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 15px;
+        }
+        
+        .milestone-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .milestone-progress-text {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        
+        @media (max-width: 768px) {
+            .stat-cards {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .course-progress-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .achievements-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .milestone-card {
+                flex: 0 0 250px;
+            }
+        }
+        
+        /* Animation initial states */
+        .dashboard-container { opacity: 0; }
+        .sidebar { opacity: 0; transform: translateX(-30px); }
+        .user-profile { opacity: 0; }
+        .main-content { opacity: 0; transform: translateY(20px); }
+        .dashboard-header { opacity: 0; transform: translateY(-20px); }
+        .progress-section { opacity: 0; transform: translateY(30px); }
+        .section-title { opacity: 0; }
+        .stat-card { opacity: 0; transform: translateY(20px); }
+        .activity-item { opacity: 0; transform: translateY(20px); }
+        .course-progress-item { opacity: 0; transform: translateY(20px); }
+        .achievement-card { opacity: 0; transform: rotateY(90deg); }
+        .milestone-card { opacity: 0; transform: translateX(30px); }
+    </style>
+{% endblock %}
+
+{% block content %}
+<body class="dashboard-page">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.dashboard') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.dashboard') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item active">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ current_user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ current_user.first_name }}</div>
+                    <div class="user-email">{{ current_user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Page Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Your Progress</h1>
+                    <p>Track your learning journey and achievements</p>
+                </div>
+            </div>
+            
+            <!-- Progress Content -->
+            <div class="progress-container">
+                <!-- Progress Overview Section -->
+                <div class="progress-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Progress Overview
+                    </h2>
+                    
+                    <div class="stat-cards">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="stat-value">{{ overall_stats.completion_rate }}%</div>
+                            <div class="stat-label">Overall Completion</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-value">{{ overall_stats.courses_completed }}</div>
+                            <div class="stat-label">Courses Completed</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-value">{{ overall_stats.hours_learned }}</div>
+                            <div class="stat-label">Hours Learned</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-value">{{ overall_stats.achievements_earned }}</div>
+                            <div class="stat-label">Achievements Earned</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Chart Section -->
+                <div class="progress-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Learning Progress Over Time
+                    </h2>
+                    
+                    <div class="chart-wrapper">
+                        <div class="chart-header">
+                            <div class="chart-info">
+                                <p>Track your learning hours and course completions</p>
+                            </div>
+                            <div class="chart-filter">
+                                <button class="chart-filter-btn active" data-period="week">Week</button>
+                                <button class="chart-filter-btn" data-period="month">Month</button>
+                                <button class="chart-filter-btn" data-period="year">Year</button>
+                            </div>
+                        </div>
+                        <canvas class="chart-container" id="progress-chart">
+                            <!-- Chart will be rendered here by JavaScript -->
+                        </canvas>
+                    </div>
+                </div>
+                
+                <!-- Course Progress Section -->
+                <div class="progress-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-book"></i>
+                        Current Course Progress
+                    </h2>
+                    
+                    <div class="course-progress-list">
+                        {% for course in courses_progress %}
+                        <div class="course-progress-item">
+                            <div class="course-header">
+                                <h3 class="course-title">{{ course.name }}</h3>
+                                <span class="course-completion">{{ course.progress }}%</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill" data-progress="{{ course.progress }}"></div>
+                            </div>
+                            <div class="course-meta">
+                                <span>{{ course.completed_lessons }}/{{ course.total_lessons }} lessons completed</span>
+                                <span>Last accessed {{ course.last_accessed }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Achievements Section -->
+                <div class="progress-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-trophy"></i>
+                        Your Achievements
+                    </h2>
+                    
+                    <div class="achievements-grid">
+                        {% for achievement in achievements %}
+                        <div class="achievement-card{% if achievement.is_locked %} achievement-locked{% endif %}">
+                            <div class="achievement-icon">
+                                <i class="{{ achievement.icon }}"></i>
+                            </div>
+                            <h3 class="achievement-name">{{ achievement.name }}</h3>
+                            <p class="achievement-description">{{ achievement.description }}</p>
+                            <span class="achievement-badge">{% if achievement.is_locked %}Locked{% else %}Earned{% endif %}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <h3 class="section-title" style="margin-top: 30px;">
+                        <i class="fas fa-calendar-check"></i>
+                        Current Streak: {{ streak_data.current_streak }} Days
+                    </h3>
+                    
+                    <div class="streak-calendar">
+                        <!-- Day labels (M, T, W, etc.) -->
+                        {% for day in streak_data.days %}
+                        <div class="calendar-day{% if day.is_active %} active{% endif %}{% if day.is_today %} today{% endif %}">{{ day.day }}</div>
+                        {% endfor %}
+                        
+                        <!-- Day numbers (15, 16, 17, etc.) -->
+                        {% for day in streak_data.days %}
+                        <div class="calendar-day{% if day.is_active %} active{% endif %}{% if day.is_today %} today{% endif %}">{{ day.date }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Learning Milestones Section -->
+                <div class="progress-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-flag-checkered"></i>
+                        Your Learning Milestones
+                    </h2>
+                    
+                    <div class="milestones-slider">
+                        {% for milestone in milestones %}
+                        <div class="milestone-card">
+                            <div class="milestone-content">
+                                <span class="milestone-tag">Milestone</span>
+                                <h3 class="milestone-title">{{ milestone.title }}</h3>
+                                <p class="milestone-description">{{ milestone.description }}</p>
+                                <div class="milestone-progress">
+                                    <div class="milestone-progress-text">{{ milestone.progress }}% Complete</div>
+                                    <div class="milestone-progress-text">{{ milestone.completed_lessons }}/{{ milestone.total_lessons }} lessons</div>
+                                </div>
+                                <div class="progress-track">
+                                    <div class="progress-fill" data-progress="{{ milestone.progress }}"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Recent Activity Section -->
+                <div class="progress-section">
+                    <h2 class="section-title">
+                        <i class="fas fa-history"></i>
+                        Recent Activity
+                    </h2>
+                    
+                    <div class="activity-timeline">
+                        {% for activity in recent_activities %}
+                        <div class="activity-item">
+                            <div class="activity-dot"></div>
+                            <div class="activity-content">
+                                <h3 class="activity-title">{{ activity.title }}</h3>
+                                <p class="activity-details">{{ activity.details }}</p>
+                                <div class="activity-time">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ activity.time }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Embed chart data for JS -->
+    <div id="chart-data" style="display:none" data-chart='{{ chart_data|tojson }}'></div>
+
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+        
+        // Initialize page animations and charts when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize animations
+            initializeAnimations();
+            
+            // Initialize chart
+            initializeChart();
+            
+            // Set widths for all progress bars
+            document.querySelectorAll('.progress-fill[data-progress]').forEach(el => {
+                const pct = el.dataset.progress;
+                if (pct) el.style.width = pct + '%';
+            });
+        });
+        
+        // Animation sequence
+        function initializeAnimations() {
+            console.log("Progress page animations initialized");
+            
+            setTimeout(() => {
+                // 1. Animate sidebar first
+                document.querySelector('.sidebar').style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                document.querySelector('.sidebar').style.opacity = '1';
+                document.querySelector('.sidebar').style.transform = 'translateX(0)';
+                
+                // 2. Then main container
+                setTimeout(() => {
+                    document.querySelector('.dashboard-container').style.transition = 'opacity 0.5s ease-out';
+                    document.querySelector('.dashboard-container').style.opacity = '1';
+                    
+                    // 3. Then header
+                    setTimeout(() => {
+                        document.querySelector('.dashboard-header').style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        document.querySelector('.dashboard-header').style.opacity = '1';
+                        document.querySelector('.dashboard-header').style.transform = 'translateY(0)';
+                        
+                        // Animate all section headers
+                        document.querySelectorAll('.section-title').forEach((header, index) => {
+                            setTimeout(() => {
+                                header.style.transition = 'opacity 0.4s ease-out';
+                                header.style.opacity = '1';
+                            }, index * 100);
+                        });
+                        
+                        // Animate all progress sections with a staggered effect
+                        document.querySelectorAll('.progress-section').forEach((section, index) => {
+                            setTimeout(() => {
+                                section.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                                section.style.opacity = '1';
+                                section.style.transform = 'translateY(0)';
+                            }, 200 + (index * 120));
+                        });
+                    }, 150);
+                }, 100);
+                
+                // Animate user profile in sidebar
+                setTimeout(() => {
+                    document.querySelector('.user-profile').style.transition = 'opacity 0.5s ease-out';
+                    document.querySelector('.user-profile').style.opacity = '1';
+                }, 700);
+                
+                // Main content area animation
+                setTimeout(() => {
+                    document.querySelector('.main-content').style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+                    document.querySelector('.main-content').style.opacity = '1';
+                    document.querySelector('.main-content').style.transform = 'translateY(0)';
+                }, 300);
+                
+                // Animate stat cards with a staggered effect
+                document.querySelectorAll('.stat-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 800 + (index * 120));
+                });
+                
+                // Animate achievement cards with a flip effect
+                document.querySelectorAll('.achievement-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        card.style.opacity = '1';
+                        card.style.transform = 'rotateY(0deg)';
+                    }, 1000 + (index * 150));
+                });
+                
+                // Animate course progress items
+                document.querySelectorAll('.course-progress-item').forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 900 + (index * 100));
+                });
+                
+                // Animate milestone cards with a slide effect
+                document.querySelectorAll('.milestone-card').forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateX(0)';
+                    }, 1100 + (index * 100));
+                });
+                
+                // Animate activity items
+                document.querySelectorAll('.activity-item').forEach((item, index) => {
+                    setTimeout(() => {
+                        item.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 1200 + (index * 100));
+                });
+                
+            }, 100);
+        }
+        
+        // Chart initialization function
+        function initializeChart() {
+            try {
+                // Get chart data from hidden element
+                const chartData = JSON.parse(document.getElementById('chart-data').dataset.chart);
+                
+                // Learning Progress Chart
+                const chartElement = document.getElementById('progress-chart');
+                if (chartElement) {
+                    const ctx = chartElement.getContext('2d');
+                    
+                    // Set proper dimensions for the canvas
+                    chartElement.style.width = '100%';
+                    chartElement.style.height = '100%';
+                    chartElement.height = 300; // Fixed height
+                    
+                    // Find the maximum values for better y-axis scaling
+                    const findMaxValue = (data) => {
+                        const maxHours = Math.max(...data.hours);
+                        const maxLessons = Math.max(...data.lessons);
+                        // Add 20% padding to the max value
+                        return Math.ceil(Math.max(maxHours, maxLessons) * 1.2);
+                    };
+                    
+                    // Calculate max for all periods to maintain consistent scale
+                    const maxWeek = findMaxValue(chartData.week);
+                    const maxMonth = findMaxValue(chartData.month);
+                    const maxYear = findMaxValue(chartData.year);
+                    const globalMax = Math.max(maxWeek, maxMonth, maxYear);
+                    
+                    const progressChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartData.week.labels,
+                            datasets: [
+                                {
+                                    label: 'Hours Spent',
+                                    data: chartData.week.hours,
+                                    borderColor: '#4f46e5',
+                                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                    tension: 0.3,
+                                    fill: true
+                                },
+                                {
+                                    label: 'Lessons Completed',
+                                    data: chartData.week.lessons,
+                                    borderColor: '#818cf8',
+                                    borderDash: [5, 5],
+                                    tension: 0.3,
+                                    fill: false
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    },
+                                    min: 0,
+                                    max: globalMax, // Use consistent max across all data periods
+                                    ticks: {
+                                        stepSize: Math.ceil(globalMax / 5), // Create reasonable steps
+                                        precision: 0 // Only show integers
+                                    }
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            },
+                            animation: {
+                                duration: 2000, // Longer animation
+                                easing: 'easeOutQuart',
+                                delay: 1500 // Delay chart animation to coordinate with page animations
+                            }
+                        }
+                    });
+                    
+                    // Chart Period Filter
+                    document.querySelectorAll('.chart-filter-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            // Remove active class from all buttons
+                            document.querySelectorAll('.chart-filter-btn').forEach(btn => {
+                                btn.classList.remove('active');
+                            });
+                            
+                            // Add active class to clicked button
+                            this.classList.add('active');
+                            
+                            // Update chart data based on period
+                            const period = this.getAttribute('data-period');
+                            
+                            // Update chart with data from the appropriate period
+                            progressChart.data.labels = chartData[period].labels;
+                            progressChart.data.datasets[0].data = chartData[period].hours;
+                            progressChart.data.datasets[1].data = chartData[period].lessons;
+                            
+                            // Keep the consistent y-axis scale when changing periods
+                            progressChart.options.scales.y.max = globalMax;
+                            
+                            progressChart.update();
+                        });
+                    });
+                } else {
+                    console.error('Chart element not found');
+                }
+            } catch (error) {
+                console.error('Error initializing chart:', error);
+            }
+        }
+    </script>
+</body>
+{% endblock %}
+

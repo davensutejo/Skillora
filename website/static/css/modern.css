@@ -1,0 +1,638 @@
+/* Modern UI Theme for Skillora
+   This file defines CSS variables and base styles for the modern UI
+*/
+
+:root {
+    /* Vibrant color palette */
+    --primary: #4f46e5; /* More vibrant indigo */
+    --primary-light: #818cf8;
+    --primary-dark: #4338ca;
+    --secondary: #f5f7fa;
+    --secondary-light: #f8fafc;
+    --secondary-dark: #f1f5f9;
+    --accent-color: #ec4899; /* Vibrant pink */
+    --accent-secondary: #f472b6; /* Lighter pink */
+    --background-white: #ffffff;
+    --background-light: #f8fafc;
+    --background-dark: #212121;
+    --text-primary: #1f2937;
+    --text-secondary: #4b5563;
+    --text-light: #9ca3af;
+    --text-white: #fff;
+    --border-color: #e5e7eb;
+    --success: #10b981; /* Vibrant green */
+    --warning: #f59e0b; /* Vibrant amber */
+    --error: #f44336;
+    --info: #0ea5e9; /* Vibrant sky blue */
+    
+    /* Alternative naming for compatibility */
+    --primary-color: var(--primary);
+    --success-color: var(--success);
+    --warning-color: var(--warning);
+    --info-color: var(--info);
+    --bg-primary: var(--background-white);
+    --bg-secondary: var(--background-light);
+    --bg-tertiary: var(--secondary-dark);
+    --text-dark: var(--text-primary);
+    --text-medium: var(--text-secondary);
+    
+    /* Gradient colors */
+    --gradient-primary: linear-gradient(135deg, #4f46e5, #818cf8);
+    --gradient-accent: linear-gradient(135deg, #ec4899, #f472b6);
+    --gradient-success: linear-gradient(135deg, #10b981, #34d399);
+    --gradient-warning: linear-gradient(135deg, #f59e0b, #fbbf24);
+    --gradient-info: linear-gradient(135deg, #0ea5e9, #38bdf8);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    
+    /* Border radius */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-xl: 24px;
+    --border-radius-full: 9999px;
+    --border-radius: var(--border-radius-lg);
+    
+    /* Structure */
+    --sidenav-width: 250px;
+    --header-height: 60px;
+    
+    /* Spacing */
+    --space-unit: 8px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-xxl: 48px;
+    --space-xs: calc(var(--space-unit) * 1);
+    --space-sm: calc(var(--space-unit) * 2);
+    --space-md: calc(var(--space-unit) * 3);
+    --space-lg: calc(var(--space-unit) * 5);
+    --space-xl: calc(var(--space-unit) * 8);
+    
+    /* Typography */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    --font-size-5xl: 3rem;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --transition-speed: 0.3s;
+}
+
+/* Base Styles */
+body {
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    background-color: var(--background-light);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+h1 {
+    font-size: var(--font-size-4xl);
+}
+
+h2 {
+    font-size: var(--font-size-3xl);
+}
+
+h3 {
+    font-size: var(--font-size-2xl);
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: var(--spacing-md);
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--primary-dark);
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-md);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--background-white);
+    width: var(--sidenav-width);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border-color);
+    background-image: linear-gradient(to bottom, #ffffff, #f9fafb);
+    overflow-y: auto;
+    transition: transform var(--transition-normal);
+}
+
+/* Custom Scrollbar Styling */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(79, 70, 229, 0.2);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(79, 70, 229, 0.4);
+}
+
+/* Firefox scrollbar */
+.sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(79, 70, 229, 0.2) transparent;
+}
+
+/* Main content with sidebar adjusted */
+.main-content {
+    margin-left: var(--sidenav-width);
+    padding: var(--space-md) var(--space-lg);
+    min-height: 100vh;
+    width: calc(100% - var(--sidenav-width));
+    box-sizing: border-box;
+    max-width: 1600px;
+    margin-right: auto;
+    background-color: var(--bg-secondary);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Logo */
+.logo-circle {
+    width: 40px;
+    height: 40px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
+    color: white;
+    font-weight: 700;
+}
+
+.logo-letter {
+    color: var(--text-white);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    padding: var(--space-md);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+.logo-text {
+    font-size: 25px !important;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-left: 0.5rem;
+}
+
+/* Menu Items */
+.sidebar-menu {
+    flex: 1;
+    padding: 0 var(--space-md);
+    overflow-y: auto;
+}
+
+.menu-category {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin: var(--space-md) 0 var(--space-xs);
+    padding-left: var(--space-xs);
+    letter-spacing: 0.5px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) var(--space-sm);
+    color: var(--text-medium);
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--space-xs);
+    transition: all var(--transition-speed);
+    text-decoration: none;
+}
+
+.menu-item:hover {
+    background-color: rgba(79, 70, 229, 0.05);
+    color: var(--primary-color);
+    transform: translateX(3px);
+}
+
+.menu-item i {
+    margin-right: var(--space-sm);
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.menu-item.active {
+    background-color: rgba(79, 70, 229, 0.08);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-left: 3px solid var(--primary-color);
+}
+
+.menu-item.active i {
+    color: var(--primary-color);
+}
+
+/* User Profile */
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding: var(--space-md);
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-white);
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.user-info {
+    margin-left: var(--space-sm);
+    min-width: 0;
+    overflow: hidden;
+    flex: 1;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email {
+    font-size: 12px;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logout-btn {
+    color: var(--text-medium);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-speed);
+}
+
+.logout-btn:hover {
+    background-color: rgba(236, 72, 153, 0.1);
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 200;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    display: none;
+}
+
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 90;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-normal);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .mobile-menu-toggle {
+        display: flex;
+    }
+    
+    .menu-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+}
+
+/* Tooltip */
+.tooltip {
+    position: relative;
+}
+
+.tooltip-text {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--background-dark);
+    color: white;
+    padding: 0.5rem;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-fast);
+    pointer-events: none;
+    margin-bottom: 0.5rem;
+}
+
+.tooltip:hover .tooltip-text {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Action buttons */
+.action-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(79, 70, 229, 0.05);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+    background-color: rgba(79, 70, 229, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Dashboard Header Styling */
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+    background: linear-gradient(to right, #ffffff, #f8fafc);
+    border-radius: var(--border-radius);
+    padding: var(--space-lg);
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    box-sizing: border-box;
+    border-left: 4px solid var(--primary-color);
+    margin-top: 10px;
+}
+
+.dashboard-header > div:first-child {
+    max-width: 70%;
+}
+
+.welcome-text h1 {
+    margin-bottom: 0.2rem;
+    font-size: 24px;
+    background: linear-gradient(120deg, var(--primary-color), var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+.welcome-text p {
+    color: var(--text-medium);
+    margin-top: var(--space-xs);
+    font-size: 16px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Responsive styles for dashboard header */
+@media (max-width: 992px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: var(--space-md);
+    }
+    
+    .dashboard-header > div {
+        width: 100%;
+        margin-bottom: var(--space-md);
+    }
+    
+    .header-actions {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        padding: var(--space-md);
+    }
+    
+    .welcome-text h1 {
+        font-size: 1.5rem;
+    }
+    
+    .welcome-text p {
+        display: none;
+    }
+    
+    .header-actions {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-header {
+        padding: var(--space-sm);
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    
+    .welcome-text h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.1rem;
+    }
+    
+    .welcome-text p {
+        font-size: 0.85rem;
+    }
+    
+    .header-actions {
+        margin-top: 8px;
+        justify-content: flex-start;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+/* Flash messages */
+.flash-messages {
+    margin-bottom: 1rem;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.5rem;
+}
+
+.alert-success {
+    background-color: rgba(0, 200, 83, 0.1);
+    border-left: 4px solid var(--success);
+    color: #00843b;
+}
+
+.alert-danger {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-left: 4px solid var(--error);
+    color: #c62828;
+}
+
+.alert-warning {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-left: 4px solid var(--warning);
+    color: #e65100;
+}
+
+.alert-info {
+    background-color: rgba(33, 150, 243, 0.1);
+    border-left: 4px solid var(--info);
+    color: #0277bd;
+}
+
+/* Responsive fixes for main content */
+@media (max-width: 992px) {
+    .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: var(--space-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: var(--space-md);
+        margin-top: var(--header-height);
+    }
+} 

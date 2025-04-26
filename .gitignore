@@ -1,0 +1,68 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Flask instance folder
+instance/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables
+.env
+.flaskenv
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Generated files
+*.txt
+!requirements.txt
+*_Code.py
+*_Script.py
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Generated video files (if they're large and generated at runtime)
+website/static/videos/
+
+# Cache directories
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Other generated content
+node_modules/ 

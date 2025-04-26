@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Login to your learning account">
+    <meta name="theme-color" content="#5D3FD3">
+    <title>Skillora - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for centering the login container */
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow-x: hidden;
+        }
+        
+        #content.auth-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 80px 20px;
+            box-sizing: border-box;
+        }
+        
+        .form-container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0;
+        }
+        
+        .nav {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+        }
+        
+        .background-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-container {
+                max-width: 100%;
+            }
+            
+            #content.auth-content {
+                padding: 70px 15px;
+            }
+            
+            .form-inner {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body id="top">
+
+    <!-- Three.js Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Enhanced Background Elements -->
+    <div class="background-elements">
+        <div class="blob-decoration blob-1"></div>
+        <div class="blob-decoration blob-2"></div>
+        <div class="blob-decoration blob-3"></div>
+        <!-- Stars will be added via JS -->
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">Skillora</div>
+        <div class="nav-links desktop-nav">
+            <a href="{{ url_for('views.index') }}">Home</a>
+            <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+        </div>
+        <div class="mobile-menu-toggle">
+            <div class="bar bar1"></div>
+            <div class="bar bar2"></div>
+            <div class="bar bar3"></div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav">
+        <a href="{{ url_for('views.index') }}">Home</a>
+        <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content" class="auth-content">
+        <div class="form-container">
+            <div class="form-inner">
+                <h1>Welcome Back</h1>
+                
+                {% if from_signup %}
+                    <ul class="flashes">
+                        <li class="success">Account created successfully! Please log in.</li>
+                    </ul>
+                {% endif %}
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+                    <!-- Hidden input to automatically remember the user -->
+                    <input type="hidden" name="remember" value="checked">
+                    <button type="submit" class="btn-submit">Log In</button>
+                </form>
+                <div class="auth-link">
+                    Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.1/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.querySelector('.mobile-nav').classList.toggle('active');
+        });
+
+        // Generate stars
+        function generateStars() {
+            const backgroundElements = document.querySelector('.background-elements');
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random size between 1px and 3px
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Random position
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Random animation duration
+                const duration = Math.random() * 3 + 2;
+                star.style.setProperty('--duration', `${duration}s`);
+                
+                // Random base opacity
+                const opacity = Math.random() * 0.5 + 0.3;
+                star.style.setProperty('--opacity', opacity);
+                star.style.setProperty('--opacity-half', opacity / 2);
+                
+                backgroundElements.appendChild(star);
+            }
+        }
+        
+        // Initialize stars
+        generateStars();
+
+        // Button hover effect
+        const loginButton = document.querySelector('.btn-submit');
+        loginButton.addEventListener('mouseover', function() {
+            gsap.to(this, {
+                boxShadow: '0 15px 25px rgba(93, 63, 211, 0.6)',
+                duration: 0.3
+            });
+        });
+        
+        loginButton.addEventListener('mouseout', function() {
+            gsap.to(this, {
+                boxShadow: '0 10px 25px rgba(93, 63, 211, 0.4)',
+                duration: 0.3
+            });
+        });
+    </script>
+</body>
+</html>

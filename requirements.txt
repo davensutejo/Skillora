@@ -1,0 +1,34 @@
+pip==25.0.1
+Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.2
+Flask-Migrate==4.0.5
+Werkzeug==2.3.7
+SQLAlchemy==2.0.23
+alembic==1.12.1
+email-validator==2.1.0.post1
+Jinja2==3.1.2
+itsdangerous==2.1.2
+click==8.1.7
+requests==2.31.0
+python-dotenv
+playwright
+asyncio
+manim
+manim-algorithm 
+manim-revealjs
+manim-voiceover[elevenlabs]
+manim-voiceover[gtts]
+manim-neural-network
+manim-ml
+manim-fonts
+manim-code-blocks
+manim-executor
+setuptools
+browser_use
+manim-voiceover[transcribe]
+
+
+#ffmpeg -> path
+#sox -> path
+#rustup -> path

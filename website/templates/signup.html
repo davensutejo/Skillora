@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Signup to our adaptive learning platform">
+    <meta name="theme-color" content="#5D3FD3">
+    <title>Skillora - Sign Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to override container scrolling */
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        #content.auth-content {
+            min-height: auto;
+            max-height: none;
+            overflow: visible;
+            padding: 120px 20px 80px;
+        }
+        
+        .form-container {
+            max-height: none;
+            overflow: visible;
+            margin: 0 auto;
+        }
+        
+        .form-inner {
+            overflow: visible;
+            padding: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            #content.auth-content {
+                padding: 100px 15px 60px;
+            }
+            
+            .form-inner {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body id="top">
+    <!-- Three.js Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Enhanced Background Elements -->
+    <div class="background-elements">
+        <div class="blob-decoration blob-1"></div>
+        <div class="blob-decoration blob-2"></div>
+        <div class="blob-decoration blob-3"></div>
+        <div class="blob-decoration blob-4"></div>
+        <!-- Stars will be added via JS -->
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">Skillora</div>
+        <div class="nav-links desktop-nav">
+            <a href="{{ url_for('views.index') }}">Home</a>
+            <a href="{{ url_for('auth.login') }}">Login</a>
+        </div>
+        <div class="mobile-menu-toggle">
+            <div class="bar bar1"></div>
+            <div class="bar bar2"></div>
+            <div class="bar bar3"></div>
+        </div>
+    </nav>
+    
+    <!-- Mobile Navigation Menu -->
+    <div class="mobile-nav">
+        <a href="{{ url_for('views.index') }}">Home</a>
+        <a href="{{ url_for('auth.login') }}">Login</a>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content" class="auth-content">
+        <div class="form-container">
+            <div class="form-inner">
+                <h1>Create Your Account</h1>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for category, message in messages %}
+                                <li class="{{ category }}">{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="firstName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password1">Password</label>
+                        <input type="password" id="password1" name="password1" class="form-control" required>
+                        <div class="password-requirements">
+                            Password must contain at least 8 characters, including uppercase, lowercase letters and numbers.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password2">Confirm Password</label>
+                        <input type="password" id="password2" name="password2" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Create Account</button>
+                </form>
+                <div class="auth-link">
+                    Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.150.1/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-toggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.querySelector('.mobile-nav').classList.toggle('active');
+        });
+
+        // Password validation feedback
+        const password1 = document.getElementById('password1');
+        const password2 = document.getElementById('password2');
+        const requirements = document.querySelector('.password-requirements');
+        
+        password1.addEventListener('input', function() {
+            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
+            if (regex.test(this.value)) {
+                requirements.style.color = 'rgba(46, 204, 113, 0.8)';
+            } else {
+                requirements.style.color = 'rgba(255, 255, 255, 0.6)';
+            }
+        });
+
+        password2.addEventListener('input', function() {
+            if (this.value === password1.value) {
+                this.style.borderColor = 'rgba(46, 204, 113, 0.8)';
+            } else {
+                this.style.borderColor = '';
+            }
+        });
+
+        // Generate stars
+        function generateStars() {
+            const backgroundElements = document.querySelector('.background-elements');
+            const starCount = 100;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Random size between 1px and 3px
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Random position
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Random animation duration
+                const duration = Math.random() * 3 + 2;
+                star.style.setProperty('--duration', `${duration}s`);
+                
+                // Random base opacity
+                const opacity = Math.random() * 0.5 + 0.3;
+                star.style.setProperty('--opacity', opacity);
+                star.style.setProperty('--opacity-half', opacity / 2);
+                
+                backgroundElements.appendChild(star);
+            }
+        }
+        
+        // Generate comets
+        function generateComets() {
+            const backgroundElements = document.querySelector('.background-elements');
+            const cometCount = 5;
+            
+            for (let i = 0; i < cometCount; i++) {
+                setTimeout(() => {
+                    createComet(backgroundElements);
+                }, i * 3000); // Stagger the comet creation
+            }
+            
+            // Setup interval to create new comets
+            setInterval(() => {
+                createComet(backgroundElements);
+            }, 15000); // Create a new comet every 15 seconds
+        }
+        
+        function createComet(container) {
+            const comet = document.createElement('div');
+            comet.classList.add('comet');
+            
+            // Random position (start position)
+            const startX = Math.random() * 30 - 10; // -10% to 20% of viewport width
+            const startY = Math.random() * 50; // 0% to 50% of viewport height
+            comet.style.left = `${startX}%`;
+            comet.style.top = `${startY}%`;
+            
+            // Random angle
+            const angle = Math.random() * 30 + 15; // 15-45 degrees
+            comet.style.setProperty('--rotate', `${angle}deg`);
+            
+            // Random travel distance
+            const travelX = Math.random() * 100 + 50; // 50-150% of viewport width
+            const travelY = Math.random() * 50 + 30; // 30-80% of viewport height
+            comet.style.setProperty('--travel-x', `${travelX}vw`);
+            comet.style.setProperty('--travel-y', `${travelY}vh`);
+            
+            // Random duration
+            const duration = Math.random() * 3 + 2; // 2-5 seconds
+            comet.style.setProperty('--duration', `${duration}s`);
+            
+            container.appendChild(comet);
+            
+            // Remove comet after animation
+            setTimeout(() => {
+                comet.remove();
+            }, duration * 1000);
+        }
+        
+        // Initialize background effects
+        generateStars();
+        generateComets();
+
+        // Button hover effect
+        const signupButton = document.querySelector('.btn-submit');
+        signupButton.addEventListener('mouseover', function() {
+            gsap.to(this, {
+                boxShadow: '0 15px 25px rgba(93, 63, 211, 0.6)',
+                duration: 0.3
+            });
+        });
+        
+        signupButton.addEventListener('mouseout', function() {
+            gsap.to(this, {
+                boxShadow: '0 10px 25px rgba(93, 63, 211, 0.4)',
+                duration: 0.3
+            });
+        });
+    </script>
+</body>
+</html>

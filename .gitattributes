@@ -1,0 +1,6 @@
+website/static/**/* filter=lfs diff=lfs merge=lfs -text
+website/templates/**/* filter=lfs diff=lfs merge=lfs -text
+website/instances/**/* filter=lfs diff=lfs merge=lfs -text
+website/auth.py filter=lfs diff=lfs merge=lfs -text
+website/views.py filter=lfs diff=lfs merge=lfs -text
+website/db_utils.py filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,10 @@
+{
+  "buildCommand": "pip install -r requirements.txt",
+  "framework": "flask",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/wsgi.py"
+    }
+  ]
+}

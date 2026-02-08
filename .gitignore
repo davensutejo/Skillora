@@ -34,4 +34,11 @@ Thumbs.db
 *.log
 
 # Chat image uploads
-Backend/website/static/uploads/chat_images/ 
+Backend/website/static/uploads/chat_images/
+
+# Generated manim scripts and videos (these contain problematic dependencies)
+Backend/website/static/courses/scripts/manim_*.py
+Backend/website/static/courses/videos/
+
+# Manim media files (auto-generated, shouldn't be committed)
+Backend/Backend/ 

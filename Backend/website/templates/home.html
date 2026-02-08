@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Your personalized adaptive learning dashboard">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Learning Dashboard</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item active">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>               
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Welcome back, {{ user.first_name }}!</h1>
+                    <p>Here's what's happening with your learning today.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-search"></i>
+                        <span class="tooltip-text">Search courses</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-bell"></i>
+                        <span class="tooltip-text">Notifications</span>
+                        <span class="notification-badge">3</span>
+                    </button>  
+                    <a href="{{ url_for('views.settings') }}"><button class="action-btn tooltip">
+                        <i class="fas fa-cog"></i>
+                        <span class="tooltip-text">Settings</span>
+                    </button></a>
+                </div>
+            </div>
+            
+            <!-- Quick Actions Bar -->
+            <div class="quick-actions-bar enhanced-card">
+                <a href="{{ url_for('views.my_courses') }}" class="quick-action-item">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <span style="color: gray;">Continue Learning</span>
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="quick-action-item">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <span style="color: gray;">Enroll New Course</span>
+                </a>
+                <!-- <a href="{{ url_for('views.schedule') }}" class="quick-action-item">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span style="color: gray;">Schedule Session</span>
+                </a> -->
+                <a href="{{ url_for('views.library') }}" class="quick-action-item">
+                    <div class="quick-action-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <span style="color: gray;">Download Materials</span>
+                </a>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="dashboard-grid">
+                <div class="stat-card enhanced-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Courses in Progress</p>
+                        <div class="stat-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-value">4</h2>
+                    <p class="stat-info">2 courses almost complete</p>
+                    <div class="stat-chart">
+                        <canvas id="coursesChart" height="80"></canvas>
+                    </div>
+                </div>
+                
+                <div class="stat-card enhanced-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Learning Hours</p>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-value">18.5</h2>
+                    <p class="stat-info">This month</p>
+                    <div class="stat-trend">
+                        <div class="trend-graph">
+                            <div class="trend-bar" style="height: 40%"></div>
+                            <div class="trend-bar" style="height: 60%"></div>
+                            <div class="trend-bar" style="height: 30%"></div>
+                            <div class="trend-bar" style="height: 75%"></div>
+                            <div class="trend-bar" style="height: 50%"></div>
+                            <div class="trend-bar" style="height: 65%"></div>
+                            <div class="trend-bar active" style="height: 90%"></div>
+                        </div>
+                        <div class="trend-label">+12% from last week</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card enhanced-card">
+                    <div class="stat-header">
+                        <p class="stat-title">Achievements</p>
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    <h2 class="stat-value">7</h2>
+                    <p class="stat-info">3 new this week</p>
+                    <div class="achievements-preview">
+                        <div class="achievement-icon gold tooltip">
+                            <i class="fas fa-award"></i>
+                            <span class="tooltip-text">Course Master</span>
+                        </div>
+                        <div class="achievement-icon silver tooltip">
+                            <i class="fas fa-star"></i>
+                            <span class="tooltip-text">Perfect Score</span>
+                        </div>
+                        <div class="achievement-icon bronze tooltip">
+                            <i class="fas fa-fire"></i>
+                            <span class="tooltip-text">7-Day Streak</span>
+                        </div>
+                        <div class="achievement-more">+4</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Learning Streak Section -->
+            <div class="streak-section enhanced-card">
+                <div class="streak-header">
+                    <div class="streak-title-area">
+                        <h2 class="streak-title">Your Learning Streak</h2>
+                        <p class="streak-subtitle">Keep learning daily to maintain your streak!</p>
+                    </div>
+                    <div class="streak-badge">
+                        <span class="days">14</span>
+                        <span class="label">DAYS</span>
+                    </div>
+                </div>
+                
+                <div class="streak-calendar">
+                    <div class="month-indicator">
+                        <button class="month-nav"><i class="fas fa-chevron-left"></i></button>
+                        <h3 class="current-month">November 2025</h3>
+                        <button class="month-nav"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    
+                    <div class="days-grid">
+                        <div class="day-names">
+                            <span>S</span>
+                            <span>M</span>
+                            <span>T</span>
+                            <span>W</span>
+                            <span>T</span>
+                            <span>F</span>
+                            <span>S</span>
+                        </div>
+                        
+                        <div class="days">
+                            <div class="day outside"><span>29</span></div>
+                            <div class="day outside"><span>30</span></div>
+                            <div class="day outside"><span>31</span></div>
+                            <div class="day completed"><span>1</span></div>
+                            <div class="day completed"><span>2</span></div>
+                            <div class="day completed"><span>3</span></div>
+                            <div class="day completed"><span>4</span></div>
+                            <div class="day completed"><span>5</span></div>
+                            <div class="day completed"><span>6</span></div>
+                            <div class="day completed"><span>7</span></div>
+                            <div class="day current"><span>8</span></div>
+                            <div class="day"><span>9</span></div>
+                            <div class="day"><span>10</span></div>
+                            <div class="day"><span>11</span></div>
+                            <div class="day"><span>12</span></div>
+                            <div class="day"><span>13</span></div>
+                            <div class="day"><span>14</span></div>
+                            <div class="day"><span>15</span></div>
+                            <div class="day"><span>16</span></div>
+                            <div class="day"><span>17</span></div>
+                            <div class="day"><span>18</span></div>
+                            <div class="day"><span>19</span></div>
+                            <div class="day"><span>20</span></div>
+                            <div class="day"><span>21</span></div>
+                            <div class="day"><span>22</span></div>
+                            <div class="day"><span>23</span></div>
+                            <div class="day"><span>24</span></div>
+                            <div class="day"><span>25</span></div>
+                            <div class="day"><span>26</span></div>
+                            <div class="day"><span>27</span></div>
+                            <div class="day"><span>28</span></div>
+                            <div class="day"><span>29</span></div>
+                            <div class="day"><span>30</span></div>
+                            <div class="day outside"><span>1</span></div>
+                            <div class="day outside"><span>2</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="streak-stats">
+                    <div class="streak-stat-item">
+                        <div class="streak-stat-value">14</div>
+                        <div class="streak-stat-label">Current Streak</div>
+                    </div>
+                    <div class="streak-stat-item">
+                        <div class="streak-stat-value">21</div>
+                        <div class="streak-stat-label">Longest Streak</div>
+                    </div>
+                    <div class="streak-stat-item">
+                        <div class="streak-stat-value">42</div>
+                        <div class="streak-stat-label">Total Active Days</div>
+                    </div>
+                </div>
+                
+                <div class="streak-milestones">
+                    <h4 class="milestones-title">Upcoming Milestone Rewards</h4>
+                    <div class="milestone-progress">
+                        <div class="milestone-track">
+                            <div class="milestone-point achieved" style="left: 0%;">
+                                <div class="milestone-dot"></div>
+                                <div class="milestone-label">
+                                    <span class="milestone-days">7</span>
+                                    <span class="milestone-reward">Badge</span>
+                                </div>
+                            </div>
+                            <div class="milestone-point achieved" style="left: 25%;">
+                                <div class="milestone-dot"></div>
+                                <div class="milestone-label">
+                                    <span class="milestone-days">14</span>
+                                    <span class="milestone-reward">Certificate</span>
+                                </div>
+                            </div>
+                            <div class="milestone-point" style="left: 50%;">
+                                <div class="milestone-dot"></div>
+                                <div class="milestone-label">
+                                    <span class="milestone-days">30</span>
+                                    <span class="milestone-reward">Premium Course</span>
+                                </div>
+                            </div>
+                            <div class="milestone-point" style="left: 75%;">
+                                <div class="milestone-dot"></div>
+                                <div class="milestone-label">
+                                    <span class="milestone-days">60</span>
+                                    <span class="milestone-reward">Mentor Session</span>
+                                </div>
+                            </div>
+                            <div class="milestone-point" style="left: 100%;">
+                                <div class="milestone-dot"></div>
+                                <div class="milestone-label">
+                                    <span class="milestone-days">100</span>
+                                    <span class="milestone-reward">Full Scholarship</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="milestone-progress-bar">
+                            <div class="milestone-progress-fill" style="width: 25%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="streak-footer">
+                    <div class="streak-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Tip: Complete at least one lesson or quiz daily to maintain your streak!</span>
+                    </div>
+                    <a href="{{ url_for('views.my_courses') }}"><button class="btn btn-primary streak-btn">Complete Today's Goal</button></a>
+                </div>
+            </div>
+            
+            <!-- Learning Path Section -->
+            <div class="learning-path-section">
+                <div class="section-header">
+                    <h2 class="section-title">Learning Path</h2>
+                    <a href="{{ url_for('views.learning_path') }}" class="view-all">View Path</a>
+                </div>
+                
+                <div class="learning-path-container enhanced-card">
+                    <div class="path-header">
+                        <div>
+                            <h3 class="path-title">Data Science Specialist</h3>
+                            <div class="path-info">
+                                <span class="path-progress"><i class="fas fa-spinner"></i> 3/5 Modules Complete</span>
+                                <span class="path-estimate"><i class="fas fa-clock"></i> Est. completion: Nov 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="path-timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h4>Python Fundamentals</h4>
+                                <p>Completed on Oct 10, 2025</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item completed">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h4>Data Manipulation with Pandas</h4>
+                                <p>Completed on Oct 25, 2025</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item current">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h4>Data Visualization with Python</h4>
+                                <p>In progress - 60% complete</p>
+                                <a href="{{ url_for('views.learning_path') }}" class="btn-continue">Continue <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h4>Machine Learning Basics</h4>
+                                <p>Starts after current course</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-point"></div>
+                            <div class="timeline-content">
+                                <h4>Advanced ML Algorithms</h4>
+                                <p>Coming soon</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Two-column layout for courses and schedule -->
+            <div class="two-column-layout">
+                <!-- Courses Section -->
+                <div class="courses-section">
+                    <div class="section-header">
+                        <h2 class="section-title">My Courses</h2>
+                        <a href="{{ url_for('views.my_courses') }}" class="view-all">View All</a>
+                    </div>
+                    
+                    <div class="courses-grid">
+                        <!-- First Course -->
+                        <div class="course-card enhanced-card">
+                            <div class="course-image animated-gradient">
+                                <div class="course-category">AI & Machine Learning</div>
+                                <div class="course-actions">
+                                    <button class="course-action-btn tooltip">
+                                        <i class="fas fa-bookmark"></i>
+                                        <span class="tooltip-text">Bookmarked</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content">
+                                <h3 class="course-title">Introduction to Machine Learning</h3>
+                                <p class="course-description">Learn the fundamentals of machine learning algorithms and their applications.</p>
+                                <div class="course-meta">
+                                    <div class="course-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>4.8</span>
+                                    </div>
+                                    <div class="course-students">
+                                        <i class="fas fa-users"></i>
+                                        <span>2.4k</span>
+                                    </div>
+                                    <div class="course-level">
+                                        <i class="fas fa-signal"></i>
+                                        <span>Intermediate</span>
+                                    </div>
+                                </div>
+                                <div class="course-footer">
+                                    <div class="course-progress">
+                                        <div class="progress-bar" style="width: 75%"></div>
+                                    </div>
+                                    <span class="course-percentage">75%</span>
+                                </div>
+                                <a href="{{ url_for('views.my_courses') }}" class="btn btn-primary btn-resume">Resume Course</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Second Course -->
+                        <div class="course-card enhanced-card">
+                            <div class="course-image animated-gradient">
+                                <div class="course-category">Web Development</div>
+                                <div class="course-actions">
+                                    <button class="course-action-btn tooltip">
+                                        <i class="far fa-bookmark"></i>
+                                        <span class="tooltip-text">Add Bookmark</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="course-content">
+                                <h3 class="course-title">Advanced React Techniques</h3>
+                                <p class="course-description">Master advanced concepts in React including hooks, context API, and performance optimization.</p>
+                                <div class="course-meta">
+                                    <div class="course-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>4.6</span>
+                                    </div>
+                                    <div class="course-students">
+                                        <i class="fas fa-users"></i>
+                                        <span>1.8k</span>
+                                    </div>
+                                    <div class="course-level">
+                                        <i class="fas fa-signal"></i>
+                                        <span>Advanced</span>
+                                    </div>
+                                </div>
+                                <div class="course-footer">
+                                    <div class="course-progress">
+                                        <div class="progress-bar" style="width: 45%"></div>
+                                    </div>
+                                    <span class="course-percentage">45%</span>
+                                </div>
+                                <a href="{{ url_for('views.my_courses') }}" class="btn btn-primary btn-resume">Resume Course</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upcoming Schedule Section -->
+                <div class="schedule-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Upcoming Schedule</h2>
+                        <a href="{{ url_for('views.schedule') }}" class="view-all">View Calendar</a>
+                    </div>
+                    
+                    <div class="schedule-container enhanced-card">
+                        <div class="date-navigator">
+                            <button class="date-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                            <h3 class="current-date">Today, November 8</h3>
+                            <button class="date-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <div class="schedule-events">
+                            <div class="schedule-event">
+                                <div class="event-time">
+                                    <span class="time">09:00 AM</span>
+                                    <div class="event-line"></div>
+                                </div>
+                                <div class="event-card">
+                                    <div class="event-color-tag" style="background-color: var(--primary-color)"></div>
+                                    <div class="event-content">
+                                        <h4 class="event-title">Live Session: Neural Networks</h4>
+                                        <p class="event-details">
+                                            <span class="event-course">Intro to ML</span>
+                                            <span class="event-duration">45 min</span>
+                                        </p>
+                                        <div class="event-actions">
+                                            <button class="btn btn-sm btn-secondary">Set Reminder</button>
+                                            <button class="btn btn-sm btn-primary">Join</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-event">
+                                <div class="event-time">
+                                    <span class="time">11:30 AM</span>
+                                    <div class="event-line"></div>
+                                </div>
+                                <div class="event-card">
+                                    <div class="event-color-tag" style="background-color: var(--accent-color)"></div>
+                                    <div class="event-content">
+                                        <h4 class="event-title">Group Discussion: React Performance</h4>
+                                        <p class="event-details">
+                                            <span class="event-course">Advanced React</span>
+                                            <span class="event-duration">1 hour</span>
+                                        </p>
+                                        <div class="event-actions">
+                                            <button class="btn btn-sm btn-secondary">Set Reminder</button>
+                                            <button class="btn btn-sm btn-primary">Join</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="schedule-event">
+                                <div class="event-time">
+                                    <span class="time">02:00 PM</span>
+                                    <div class="event-line"></div>
+                                </div>
+                                <div class="event-card">
+                                    <div class="event-color-tag" style="background-color: var(--success-color)"></div>
+                                    <div class="event-content">
+                                        <h4 class="event-title">Assignment Due: Data Visualization</h4>
+                                        <p class="event-details">
+                                            <span class="event-course">Data Viz with Python</span>
+                                        </p>
+                                        <div class="event-actions">
+                                            <button class="btn btn-sm btn-secondary">Set Reminder</button>
+                                            <button class="btn btn-sm btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="view-full-schedule">
+                            <a href="#" class="btn btn-secondary btn-block">View Full Schedule</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity Section -->
+            <div class="section-header">
+                <h2 class="section-title">Recent Activity</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="activity-list enhanced-card">
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h3 class="activity-title">Completed Lesson 5: Neural Networks</h3>
+                        <p class="activity-course">Introduction to Machine Learning</p>
+                        <p class="activity-time">Today, 10:30 AM</p>
+                    </div>
+                    <div class="activity-status status-completed">Completed</div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h3 class="activity-title">Submitted Assignment: Data Cleaning</h3>
+                        <p class="activity-course">Data Visualization with Python</p>
+                        <p class="activity-time">Yesterday, 6:45 PM</p>
+                    </div>
+                    <div class="activity-status status-completed">Completed</div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h3 class="activity-title">Started Lesson 3: React Context API</h3>
+                        <p class="activity-course">Advanced React Techniques</p>
+                        <p class="activity-time">Yesterday, 3:20 PM</p>
+                    </div>
+                    <div class="activity-status status-progress">In Progress</div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="activity-details">
+                        <h3 class="activity-title">Earned Achievement: Data Wizard</h3>
+                        <p class="activity-course">Data Visualization with Python</p>
+                        <p class="activity-time">2 days ago, 1:15 PM</p>
+                    </div>
+                    <div class="activity-status status-completed">Completed</div>
+                </div>
+            </div>
+            
+            <!-- Recommendations Section -->
+            <div class="recommendations-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recommended For You</h2>
+                    <a href="#" class="view-all">View More</a>
+                </div>
+                
+                <div class="recommendations-grid">
+                    <div class="recommendation-card enhanced-card">
+                        <div class="recommendation-tag">Based on your interests</div>
+                        <div class="recommendation-content">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <div class="recommendation-info">
+                                <h3>Full-Stack Web Development</h3>
+                                <p>Comprehensive course covering front-end and back-end technologies</p>
+                                <div class="recommendation-meta">
+                                    <span><i class="fas fa-clock"></i> 40 hours</span>
+                                    <span><i class="fas fa-signal"></i> Intermediate</span>
+                                </div>
+                                <button class="btn btn-primary">Explore Course</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-card enhanced-card">
+                        <div class="recommendation-tag">Popular in Data Science</div>
+                        <div class="recommendation-content">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <div class="recommendation-info">
+                                <h3>Deep Learning Specialization</h3>
+                                <p>Master deep learning techniques with neural networks and TensorFlow</p>
+                                <div class="recommendation-meta">
+                                    <span><i class="fas fa-clock"></i> 60 hours</span>
+                                    <span><i class="fas fa-signal"></i> Advanced</span>
+                                </div>
+                                <button class="btn btn-primary">Explore Course</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-card enhanced-card">
+                        <div class="recommendation-tag">Career advancement</div>
+                        <div class="recommendation-content">
+                            <div class="recommendation-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="recommendation-info">
+                                <h3>Tech Interview Preparation</h3>
+                                <p>Ace your technical interviews with practice and coaching</p>
+                                <div class="recommendation-meta">
+                                    <span><i class="fas fa-clock"></i> 25 hours</span>
+                                    <span><i class="fas fa-signal"></i> All levels</span>
+                                </div>
+                                <button class="btn btn-primary">Explore Course</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Achievement Badges -->
+            <div class="achievements-showcase">
+                <div class="section-header">
+                    <h2 class="section-title">Your Badges</h2>
+                    <a href="{{ url_for('views.progress') }}" class="view-all">View All</a>
+                </div>
+                
+                <div class="badges-container enhanced-card">
+                    <div class="badge-item">
+                        <div class="badge-icon gold">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <h4 class="badge-title">Course Master</h4>
+                        <p class="badge-description">Completed 5 courses with excellent scores</p>
+                    </div>
+                    
+                    <div class="badge-item">
+                        <div class="badge-icon silver">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4 class="badge-title">Perfect Score</h4>
+                        <p class="badge-description">Achieved 100% on an assessment</p>
+                    </div>
+                    
+                    <div class="badge-item">
+                        <div class="badge-icon bronze">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <h4 class="badge-title">7-Day Streak</h4>
+                        <p class="badge-description">Studied for 7 consecutive days</p>
+                    </div>
+                    
+                    <div class="badge-item">
+                        <div class="badge-icon locked">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h4 class="badge-title">Community Champion</h4>
+                        <p class="badge-description">Help 10 students in the forum</p>
+                    </div>
+                    
+                    <div class="badge-item">
+                        <div class="badge-icon locked">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h4 class="badge-title">Project Guru</h4>
+                        <p class="badge-description">Complete 3 portfolio projects</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Learning Analytics Section -->
+            <div class="section-header">
+                <h2 class="section-title">Learning Analytics</h2>
+                <a href="{{ url_for('views.progress') }}" class="view-all">View Detailed Stats</a>
+            </div>
+            
+            <div class="analytics-container">
+                <!-- Comprehensive Statistics -->
+                <div class="analytics-grid">
+                    <div class="analytics-card enhanced-card">
+                        <div class="analytics-header">
+                            <h3 class="analytics-title">Study Time Distribution</h3>
+                            <div class="analytics-options">
+                                <select class="analytics-period-selector">
+                                    <option value="week">This Week</option>
+                                    <option value="month" selected>This Month</option>
+                                    <option value="year">This Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="chart-container">
+                                <canvas id="studyTimeChart" width="100%" height="220"></canvas>
+                            </div>
+                        </div>
+                        <div class="analytics-footer">
+                            <div class="analytics-insight">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>You study most effectively in the evening hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="analytics-card enhanced-card">
+                        <div class="analytics-header">
+                            <h3 class="analytics-title">Subject Performance</h3>
+                            <div class="analytics-options">
+                                <span class="analytics-legend">
+                                    <span class="legend-item">
+                                        <span class="legend-color" style="background-color: var(--primary-color);"></span>
+                                        <span class="legend-label">Score</span>
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-color" style="background-color: var(--accent-color);"></span>
+                                        <span class="legend-label">Time Spent</span>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="analytics-content">
+                            <div class="chart-container">
+                                <canvas id="subjectPerformanceChart" width="100%" height="220"></canvas>
+                            </div>
+                        </div>
+                        <div class="analytics-footer">
+                            <div class="analytics-insight">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Your Python skills have improved 18% this month</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Learning Focus Statistics -->
+                <div class="focus-stats-container enhanced-card">
+                    <h3 class="focus-title">Learning Focus Statistics</h3>
+                    <div class="focus-stats-grid">
+                        <div class="focus-stat-item">
+                            <div class="focus-stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="focus-stat-value">4.2<span class="unit">h</span></div>
+                            <div class="focus-stat-label">Avg. Daily Study Time</div>
+                            <div class="focus-stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>12%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="focus-stat-item">
+                            <div class="focus-stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="focus-stat-value">86<span class="unit">%</span></div>
+                            <div class="focus-stat-label">Completion Rate</div>
+                            <div class="focus-stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>5%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="focus-stat-item">
+                            <div class="focus-stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="focus-stat-value">42</div>
+                            <div class="focus-stat-label">Lessons Completed</div>
+                            <div class="focus-stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>8</span>
+                            </div>
+                        </div>
+                        
+                        <div class="focus-stat-item">
+                            <div class="focus-stat-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="focus-stat-value">92<span class="unit">%</span></div>
+                            <div class="focus-stat-label">Quiz Avg. Score</div>
+                            <div class="focus-stat-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>3%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="focus-stat-item">
+                            <div class="focus-stat-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="focus-stat-value">45<span class="unit">min</span></div>
+                            <div class="focus-stat-label">Avg. Focus Session</div>
+                            <div class="focus-stat-trend negative">
+                                <i class="fas fa-arrow-down"></i>
+                                <span>5%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="focus-stat-item">
+                            <div class="focus-stat-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="focus-stat-value">7</div>
+                            <div class="focus-stat-label">Achievements</div>
+                            <div class="focus-stat-trend neutral">
+                                <i class="fas fa-equals"></i>
+                                <span>0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Community & Leaderboard Section -->
+            <div class="community-section">
+                <div class="section-header">
+                    <h2 class="section-title">Community & Leaderboard</h2>
+                    <a href="#" class="view-all">View Community Hub</a>
+                </div>
+                
+                <div class="community-container">
+                    <div class="leaderboard-card">
+                        <div class="leaderboard-header">
+                            <h3 class="leaderboard-title">Top Learners</h3>
+                            <div class="leaderboard-filters">
+                                <button class="leaderboard-filter active">Weekly</button>
+                                <button class="leaderboard-filter">Monthly</button>
+                                <button class="leaderboard-filter">All Time</button>
+                            </div>
+                        </div>
+                        
+                        <div class="leaderboard-list">
+                            <div class="leaderboard-item" style="opacity: 0; transform: translateX(20px);">
+                                <div class="rank">1</div>
+                                <div class="user-avatar-sm" style="background-color: #6200EA;">JD</div>
+                                <div class="user-name">Jane Doe</div>
+                                <div class="user-points">2,450 pts</div>
+                                <div class="user-streak"><i class="fas fa-fire"></i> 28 days</div>
+                            </div>
+                            
+                            <div class="leaderboard-item" style="opacity: 0; transform: translateX(20px);">
+                                <div class="rank">2</div>
+                                <div class="user-avatar-sm" style="background-color: #00BFA5;">TS</div>
+                                <div class="user-name">Tom Smith</div>
+                                <div class="user-points">2,120 pts</div>
+                                <div class="user-streak"><i class="fas fa-fire"></i> 15 days</div>
+                            </div>
+                            
+                            <div class="leaderboard-item" style="opacity: 0; transform: translateX(20px);">
+                                <div class="rank">3</div>
+                                <div class="user-avatar-sm" style="background-color: #FF6B6B;">AW</div>
+                                <div class="user-name">Alex Wang</div>
+                                <div class="user-points">1,950 pts</div>
+                                <div class="user-streak"><i class="fas fa-fire"></i> 19 days</div>
+                            </div>
+                            
+                            <div class="leaderboard-item" style="opacity: 0; transform: translateX(20px);">
+                                <div class="rank">4</div>
+                                <div class="user-avatar-sm" style="background-color: #FF9800;">MJ</div>
+                                <div class="user-name">Maya Johnson</div>
+                                <div class="user-points">1,840 pts</div>
+                                <div class="user-streak"><i class="fas fa-fire"></i> 12 days</div>
+                            </div>
+                            
+                            <div class="leaderboard-item" style="opacity: 0; transform: translateX(20px);">
+                                <div class="rank">5</div>
+                                <div class="user-avatar-sm" style="background-color: #536DFE;">RK</div>
+                                <div class="user-name">Ryan Kim</div>
+                                <div class="user-points">1,705 pts</div>
+                                <div class="user-streak"><i class="fas fa-fire"></i> 8 days</div>
+                            </div>
+                        </div>
+                        
+                        <div class="leaderboard-footer">
+                            <a href="{{ url_for('views.progress') }}" class="btn btn-secondary btn-sm">See Full Leaderboard</a>
+                        </div>
+                    </div>
+                    
+                    <div class="community-stats-card">
+                        <h3 class="community-stats-title">Community Highlights</h3>
+                        
+                        <div class="community-stats-grid">
+                            <div class="community-stat" style="opacity: 0; transform: translateY(20px);">
+                                <div class="community-stat-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <div class="community-stat-info">
+                                    <div class="community-stat-value">128500</div>
+                                    <div class="community-stat-label">Active Learners</div>
+                                </div>
+                            </div>
+                            
+                            <div class="community-stat" style="opacity: 0; transform: translateY(20px);">
+                                <div class="community-stat-icon">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="community-stat-info">
+                                    <div class="community-stat-value">4250</div>
+                                    <div class="community-stat-label">Courses Completed Today</div>
+                                </div>
+                            </div>
+                            
+                            <div class="community-stat" style="opacity: 0; transform: translateY(20px);">
+                                <div class="community-stat-icon">
+                                    <i class="fas fa-medal"></i>
+                                </div>
+                                <div class="community-stat-info">
+                                    <div class="community-stat-value">18700</div>
+                                    <div class="community-stat-label">Badges Earned This Week</div>
+                                </div>
+                            </div>
+                            
+                            <div class="community-stat" style="opacity: 0; transform: translateY(20px);">
+                                <div class="community-stat-icon">
+                                    <i class="fas fa-question-circle"></i>
+                                </div>
+                                <div class="community-stat-info">
+                                    <div class="community-stat-value">2380</div>
+                                    <div class="community-stat-label">Forum Questions Answered</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="community-actions" style="text-align: center; margin-top: 20px;">
+                            <a href="#" class="btn btn-primary">Join a Study Group</a>
+                            <a href="#" class="btn btn-secondary" style="margin-left: 10px;">Visit Forum</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Widgets -->
+            <div class="dashboard-widgets">
+                
+                <!-- Survey Notification Widget (only if not completed) -->
+                {% if not user.is_survey_completed %}
+                <div class="dashboard-widget survey-widget">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-clipboard-list widget-icon"></i>
+                            CS Interest Survey
+                        </h3>
+                    </div>
+                    <div class="widget-content">
+                        <div class="survey-widget-content">
+                            <div class="survey-description">
+                                <p>Complete our computer science interest survey to unlock personalized learning paths and course recommendations!</p>
+                                <ul class="survey-benefits">
+                                    <li><i class="fas fa-check"></i> Discover your CS specialty</li>
+                                    <li><i class="fas fa-check"></i> Get customized course recommendations</li>
+                                    <li><i class="fas fa-check"></i> Unlock learning paths and progress tracking</li>
+                                </ul>
+                            </div>
+                            <div class="survey-actions">
+                                <a href="{{ url_for('views.cs_interest_survey') }}" class="btn btn-primary">Take Survey Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar on mobile
+        const sidebar = document.querySelector('.sidebar');
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                
+                // Toggle between hamburger and close icon
+                const icon = this.querySelector('i');
+                if (sidebar.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            });
+        }
+        
+        // Handle responsive sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                // Reset icon
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+        
+        // ... rest of your existing JavaScript ...
+    });
+    </script>
+</body>
+</html> 

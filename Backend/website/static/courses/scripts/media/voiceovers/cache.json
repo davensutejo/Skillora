@@ -1,0 +1,11 @@
+[
+  {
+    "input_text": "Hello, I am a speech enabled animation.",
+    "input_data": {
+      "input_text": "Hello, I am a speech enabled animation.",
+      "service": "gtts"
+    },
+    "original_audio": "hello-i-am-a-speech-enabled-animation-3e61681b.mp3",
+    "final_audio": "hello-i-am-a-speech-enabled-animation-3e61681b.mp3"
+  }
+]

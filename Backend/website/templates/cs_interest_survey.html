@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - CS Interest Survey">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - CS Interest Survey</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files - Force reload with cache busting parameter -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}?v={{ range(1, 10000) | random }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v={{ range(1, 10000) | random }}">
+    
+    <style>
+        :root {
+            --secondary: #6b7280;
+            --background: #f9fafb;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+            --input-bg: #f9fafb;
+            --hover-bg: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-color);
+            animation: fadeIn 0.8s ease-out;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        /* Reset and base styles to ensure consistency */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+            background-color: var(--background) !important;
+            color: var(--text-color) !important;
+            line-height: 1.6 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            min-height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+            animation: fadeIn 0.8s ease-in-out forwards;
+        }
+        
+        /* Page animation and transition styles */
+        body {
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .survey-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s ease;
+            background-color: var(--card-bg) !important;
+            border-radius: var(--border-radius) !important;
+            box-shadow: var(--shadow-sm) !important;
+            padding: 2.5rem !important;
+            margin-bottom: 2.5rem !important;
+            border: 1px solid rgba(98, 0, 234, 0.1) !important;
+        }
+        
+        .page-loaded .survey-section {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .survey-header {
+            opacity: 0;
+            transform: translateY(-10px);
+            animation: slideDown 0.7s ease forwards;
+            animation-delay: 0.2s;
+            background: linear-gradient(135deg, rgba(98, 0, 234, 0.06), rgba(236, 64, 122, 0.06)) !important;
+            position: relative;
+            overflow: hidden;
+            text-align: center !important;
+            margin-bottom: 3rem !important;
+            padding: 3rem !important;
+            border-radius: var(--border-radius) !important;
+            box-shadow: var(--shadow-sm) !important;
+            border: 1px solid rgba(98, 0, 234, 0.1) !important;
+        }
+        
+        /* Add subtle background pattern to survey header */
+        .survey-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(98, 0, 234, 0.05) 2%, transparent 10%),
+                radial-gradient(circle at 75% 75%, rgba(236, 64, 122, 0.05) 2%, transparent 10%);
+            background-size: 80px 80px;
+            z-index: -1;
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .survey-progress {
+            opacity: 0;
+            transform: scaleX(0.9);
+            animation: scaleIn 0.5s ease forwards;
+            animation-delay: 0.4s;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            margin-bottom: 2.5rem;
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            margin-bottom: 2.5rem !important;
+            background-color: var(--card-bg) !important;
+            padding: 1.25rem 1.75rem !important;
+            border-radius: var(--border-radius) !important;
+            box-shadow: var(--shadow-sm) !important;
+            border: 1px solid rgba(98, 0, 234, 0.05) !important;
+        }
+        
+        .survey-progress.sticky {
+            box-shadow: var(--shadow-md);
+            transform: translateY(0) scaleX(1);
+        }
+        
+        @keyframes scaleIn {
+            from { 
+                opacity: 0;
+                transform: scaleX(0.9);
+            }
+            to { 
+                opacity: 1;
+                transform: scaleX(1);
+            }
+        }
+        
+        /* Make the submit button visible by overriding its initial styles */
+        .btn-submit-survey {
+            opacity: 1 !important; /* Force visibility */
+            transform: translateY(0) !important; /* Remove initial transform */
+            animation: none !important; /* Disable the delayed animation */
+            background: linear-gradient(135deg, var(--primary), var(--accent-color)) !important;
+            color: white !important;
+            visibility: visible !important;
+            display: flex !important;
+        }
+        
+        @keyframes fadeUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-submit-survey::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .btn-submit-survey:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(98, 0, 234, 0.5);
+        }
+        
+        .btn-submit-survey:hover::before {
+            left: 100%;
+        }
+        
+        .btn-submit-survey i {
+            font-size: 1.4rem;
+        }
+        
+        .survey-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            background-color: var(--card-bg);
+            padding: 1.25rem 1.75rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(98, 0, 234, 0.05);
+        }
+        
+        .progress-bar-container {
+            flex-grow: 1;
+            height: 10px;
+            background-color: var(--background-light);
+            border-radius: 5px;
+            margin: 0 1.5rem;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--accent-color));
+            border-radius: 5px;
+            width: 0%; /* Start at 0% - will be updated by JavaScript */
+            transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-text {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            min-width: 55px;
+            text-align: right;
+        }
+
+        
+        .fixed-submit-btn {
+            max-width: 280px;
+            margin: 0;
+            padding: 1.25rem;
+        }
+        
+        .survey-container {
+            padding: 2.5rem !important;
+            max-width: 1200px !important;
+            margin: 0 auto !important; 
+        }
+        
+        .rating-container {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+            gap: 1.5rem !important;
+            margin-top: 1.5rem !important;
+        }
+        
+        .rating-item {
+            background-color: var(--card-bg) !important;
+            border-radius: var(--border-radius) !important;
+            padding: 1.5rem !important;
+            box-shadow: var(--shadow-xs) !important;
+            border: 1px solid rgba(98, 0, 234, 0.05) !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+        }
+        
+        .rating-title {
+            display: flex !important;
+            align-items: center !important;
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            margin-bottom: 1rem !important;
+            color: var(--text-primary) !important;
+        }
+        
+        .rating-title i {
+            margin-right: 0.75rem !important;
+            color: var(--primary) !important;
+            font-size: 1.2rem !important;
+        }
+        
+        .rating-value-display {
+            font-size: 2.5rem !important;
+            font-weight: 700 !important;
+            color: var(--primary) !important;
+            text-align: center !important;
+            margin-bottom: 0.5rem !important;
+        }
+
+        .section-title {
+            display: flex !important;
+            align-items: center !important;
+            font-size: 1.8rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 1rem !important;
+            color: var(--text-primary) !important;
+        }
+
+        .section-title i {
+            margin-right: 1rem !important;
+            color: var(--primary) !important;
+        }
+
+        .section-description {
+            font-size: 1.1rem !important;
+            color: var(--text-secondary) !important;
+            margin-bottom: 2rem !important;
+        }
+
+        .career-recommendation-note {
+            display: flex !important;
+            align-items: center !important;
+            background-color: rgba(98, 0, 234, 0.05) !important;
+            padding: 1rem 1.5rem !important;
+            border-radius: var(--border-radius) !important;
+            margin-top: 1.5rem !important;
+        }
+
+        .career-recommendation-note i {
+            font-size: 1.4rem !important;
+            color: var(--primary) !important;
+            margin-right: 1rem !important;
+        }
+
+        .survey-title {
+            font-size: 2.8rem !important;
+            font-weight: 800 !important;
+            background: linear-gradient(135deg, var(--primary), var(--accent-color)) !important;
+            -webkit-background-clip: text !important;
+            background-clip: text !important;
+            color: transparent !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .survey-description {
+            font-size: 1.2rem !important;
+            color: var(--text-secondary) !important;
+            max-width: 800px !important;
+            margin: 0 auto 1.5rem !important;
+        }
+
+        .section-number {
+            width: 40px !important;
+            height: 40px !important;
+            background: linear-gradient(135deg, var(--primary), var(--accent-color)) !important;
+            color: white !important;
+            font-size: 1.2rem !important;
+            font-weight: 700 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        .radio-group {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+            gap: 1rem !important;
+            margin-top: 1rem !important;
+        }
+        
+        .radio-option {
+            background-color: var(--card-bg) !important;
+            border-radius: var(--border-radius) !important;
+            padding: 1.25rem !important;
+            box-shadow: var(--shadow-xs) !important;
+            border: 1px solid rgba(98, 0, 234, 0.08) !important;
+            display: flex !important;
+            align-items: center !important;
+            cursor: pointer !important;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+            position: relative !important;
+        }
+        
+        .radio-option:hover {
+            transform: translateY(-3px) !important;
+            box-shadow: var(--shadow-md) !important;
+            border-color: var(--primary) !important;
+        }
+        
+        .radio-option.selected {
+            border-color: var(--primary) !important;
+            background-color: rgba(98, 0, 234, 0.05) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+
+        .radio-option input {
+            margin-right: 0.75rem !important;
+        }
+
+        .radio-option span {
+            font-weight: 500 !important;
+            color: var(--text-primary) !important;
+        }
+
+        .radio-option small {
+            display: block !important;
+            color: var(--text-secondary) !important;
+            font-size: 0.85rem !important;
+            margin-top: 0.25rem !important;
+        }
+
+        .form-group {
+            margin-bottom: 2rem !important;
+        }
+
+        .form-group label {
+            display: block !important;
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            color: var(--text-primary) !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .rating-scale {
+            display: flex !important;
+            justify-content: space-between !important;
+            margin-top: 0.5rem !important;
+        }
+
+        .scale-label {
+            font-size: 0.85rem !important;
+            color: var(--text-secondary) !important;
+        }
+        
+        @media (max-width: 768px) {
+            .survey-container {
+                padding: 1.25rem;
+                padding-bottom: 100px;
+            }
+            
+            .survey-title {
+                font-size: 2.2rem;
+            }
+            
+            .survey-header {
+                padding: 2rem;
+            }
+            
+            .survey-description {
+                font-size: 1.05rem;
+            }
+            
+            .survey-section {
+                padding: 1.75rem;
+            }
+            
+            .rating-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .career-recommendation-note {
+                flex-direction: column;
+                text-align: center;
+                padding: 1.5rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+            
+            .section-title i {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+            
+            .section-description {
+                text-align: center;
+            }
+            
+            .btn-submit-survey {
+                padding: 1.25rem;
+                font-size: 1.2rem;
+            }
+            
+            .progress-text {
+                font-size: 0.85rem;
+                min-width: 40px;
+            }
+        }
+        
+        /* Custom scrollbar for better UX */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--background-light);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(98, 0, 234, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(98, 0, 234, 0.5);
+        }
+        
+        /* Add shimmer effect to progress bar */
+        .progress-bar-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.3) 50%, 
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            100% {
+                transform: translateX(200%);
+            }
+        }
+        
+        /* Enhanced styles for rating inputs */
+        .rating-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            margin-top: 1rem;
+            background: var(--background-light);
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        /* Slider thumb styles for different browsers */
+        .rating-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent-color));
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .rating-input::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent-color));
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            border: none;
+        }
+        
+        .rating-input::-ms-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent-color));
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        /* Hover and focus styles for slider thumb */
+        .rating-input::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 10px rgba(98, 0, 234, 0.4);
+        }
+        
+        .rating-input::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 10px rgba(98, 0, 234, 0.4);
+        }
+        
+        .rating-input::-ms-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 3px 10px rgba(98, 0, 234, 0.4);
+        }
+        
+        /* Pulsing submit button */
+        @keyframes buttonPulse {
+            0% {
+                box-shadow: 0 6px 20px rgba(98, 0, 234, 0.4);
+            }
+            50% {
+                box-shadow: 0 8px 30px rgba(98, 0, 234, 0.6);
+            }
+            100% {
+                box-shadow: 0 6px 20px rgba(98, 0, 234, 0.4);
+            }
+        }
+        
+        .btn-submit-survey {
+            animation: buttonPulse 2s infinite ease-in-out;
+        }
+        
+        /* Improved radio options */
+        .radio-option.selected::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 20px 20px 0;
+            border-color: transparent var(--primary) transparent transparent;
+        }
+        
+        .radio-option.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 1px;
+            right: 4px;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        /* Additional touch for accessibility - focus states */
+        .rating-input:focus,
+        .radio-option input:focus,
+        .btn-submit-survey:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        /* Container and card styles */
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 8px 20px var(--shadow-color);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+        
+        /* Form styles */
+        .survey-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* Form elements styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            outline: none;
+        }
+        
+        /* Checkbox and radio styling */
+        .checkbox-group, .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .checkbox-item, .radio-item {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        
+        .checkbox-item:hover, .radio-item:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .checkbox-item input, .radio-item input {
+            margin-right: 0.75rem;
+            accent-color: var(--primary);
+        }
+        
+        /* Question sections */
+        .question {
+            margin-bottom: 2rem;
+        }
+        
+        .question-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="page-loaded">
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <div class="survey-container">
+                <div class="survey-header">
+                    <h1 class="survey-title">CS Career Finder</h1>
+                    <p class="survey-description">
+                        Share your interests in various computer science fields, and we'll recommend the best career path for you!
+                        This survey will also help us customize your learning experience to match your preferences.
+                    </p>
+                    <div class="career-recommendation-note">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Based on your responses, we'll identify your most suitable career path in tech and optimize your learning journey accordingly.</span>
+                    </div>
+                </div>
+                
+                
+                <form method="POST" action="{{ url_for('views.cs_interest_survey') }}" id="surveyForm">
+                    <!-- Interest Areas Section -->
+                    <div class="survey-section">
+                        <div class="section-number">1</div>
+                        <h2 class="section-title">
+                            <i class="fas fa-star"></i>
+                            Rate Your Interest in CS Areas
+                        </h2>
+                        <p class="section-description">On a scale of 1 to 5, how interested are you in learning about each of these areas?</p>
+                        
+                        <div class="rating-container">
+                            <!-- Algorithms and Data Structures -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-sitemap"></i>
+                                    Algorithms & Data Structures
+                                </h3>
+                                <div class="rating-value-display" id="algorithms_value">3</div>
+                                <input type="range" class="rating-input" name="algorithms_interest" id="algorithms_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Data Science & Analytics -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Data Science & Analytics
+                                </h3>
+                                <div class="rating-value-display" id="data_science_value">3</div>
+                                <input type="range" class="rating-input" name="data_science_interest" id="data_science_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Web Development -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-globe"></i>
+                                    Web Development
+                                </h3>
+                                <div class="rating-value-display" id="web_dev_value">3</div>
+                                <input type="range" class="rating-input" name="web_development_interest" id="web_development_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Mobile Development -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-mobile-alt"></i>
+                                    Mobile Development
+                                </h3>
+                                <div class="rating-value-display" id="mobile_dev_value">3</div>
+                                <input type="range" class="rating-input" name="mobile_development_interest" id="mobile_development_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Cybersecurity -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Cybersecurity
+                                </h3>
+                                <div class="rating-value-display" id="cybersecurity_value">3</div>
+                                <input type="range" class="rating-input" name="cybersecurity_interest" id="cybersecurity_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Artificial Intelligence -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-robot"></i>
+                                    Artificial Intelligence
+                                </h3>
+                                <div class="rating-value-display" id="ai_value">3</div>
+                                <input type="range" class="rating-input" name="artificial_intelligence_interest" id="artificial_intelligence_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Game Development -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-gamepad"></i>
+                                    Game Development
+                                </h3>
+                                <div class="rating-value-display" id="game_dev_value">3</div>
+                                <input type="range" class="rating-input" name="game_development_interest" id="game_development_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Systems Programming -->
+                            <div class="rating-item">
+                                <h3 class="rating-title">
+                                    <i class="fas fa-microchip"></i>
+                                    Systems Programming
+                                </h3>
+                                <div class="rating-value-display" id="systems_value">3</div>
+                                <input type="range" class="rating-input" name="systems_programming_interest" id="systems_programming_interest" min="1" max="5" value="3" required>
+                                <div class="rating-scale">
+                                    <span class="scale-label">Not interested</span>
+                                    <span class="scale-label">Very interested</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Learning Preferences Section -->
+                    <div class="survey-section">
+                        <div class="section-number">2</div>
+                        <h2 class="section-title">
+                            <i class="fas fa-brain"></i>
+                            Learning Preferences
+                        </h2>
+                        
+                        <div class="form-group">
+                            <label>What is your preferred learning style?</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="preferred_learning_style" value="visual" required>
+                                    <span>Visual <small>(images, diagrams)</small></span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="preferred_learning_style" value="auditory">
+                                    <span>Auditory <small>(lectures, discussions)</small></span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="preferred_learning_style" value="reading_writing">
+                                    <span>Reading/Writing <small>(texts, notes)</small></span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="preferred_learning_style" value="kinesthetic">
+                                    <span>Kinesthetic <small>(hands-on, practice)</small></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>How much time can you dedicate to learning per week?</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="learning_time_availability" value="less than 5 hours" required>
+                                    <span>Less than 5 hours</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="learning_time_availability" value="5-10 hours">
+                                    <span>5-10 hours</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="learning_time_availability" value="10-20 hours">
+                                    <span>10-20 hours</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="learning_time_availability" value="20+ hours">
+                                    <span>20+ hours</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden fields for career recommendation -->
+                    <input type="hidden" name="career_goal" id="recommended_career" value="">
+                    <input type="hidden" name="prior_experience" value="Automatically generated from survey">
+                    
+                    <button type="submit" class="btn-submit-survey" id="submitBtn" style="opacity: 1 !important; visibility: visible !important; display: flex !important; align-items: center; justify-content: center; background: linear-gradient(135deg, #6200ea, #ec407a) !important; color: white !important; border: none; border-radius: 8px; padding: 1.5rem 3rem; font-size: 1.3rem; font-weight: 700; margin: 4rem auto 0; width: 100%; max-width: 400px; box-shadow: 0 6px 20px rgba(98, 0, 234, 0.4);">
+                        <i class="fas fa-rocket"></i>
+                        Find My Ideal Career Path
+                    </button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force the submit button to be visible
+            const submitButton = document.getElementById('submitBtn');
+            if (submitButton) {
+                submitButton.style.opacity = '1';
+                submitButton.style.visibility = 'visible';
+                submitButton.style.display = 'flex';
+                submitButton.style.backgroundColor = '#6200ea';
+                submitButton.style.background = 'linear-gradient(135deg, #6200ea, #ec407a)';
+                submitButton.style.color = 'white';
+                submitButton.style.transform = 'none';
+                submitButton.style.animation = 'none';
+            }
+
+            // Toggle sidebar on mobile
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    
+                    // Toggle between hamburger and close icon
+                    const icon = this.querySelector('i');
+                    if (sidebar.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                });
+            }
+            
+            // Handle responsive sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    document.body.style.overflow = '';
+                    
+                    // Reset icon
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+            
+            // Range input value visualization and career determination
+            const rangeInputs = document.querySelectorAll('.rating-input');
+            const radioInputs = document.querySelectorAll('input[type="radio"]');
+            const valueDisplays = {
+                'algorithms_interest': document.getElementById('algorithms_value'),
+                'data_science_interest': document.getElementById('data_science_value'),
+                'web_development_interest': document.getElementById('web_dev_value'),
+                'mobile_development_interest': document.getElementById('mobile_dev_value'),
+                'cybersecurity_interest': document.getElementById('cybersecurity_value'),
+                'artificial_intelligence_interest': document.getElementById('ai_value'),
+                'game_development_interest': document.getElementById('game_dev_value'),
+                'systems_programming_interest': document.getElementById('systems_value')
+            };
+            
+            // Career mapping based on highest scores
+            const careerMapping = {
+                'algorithms_interest': 'software_developer',
+                'data_science_interest': 'data_scientist',
+                'web_development_interest': 'web_developer',
+                'mobile_development_interest': 'mobile_developer',
+                'cybersecurity_interest': 'cybersecurity_specialist',
+                'artificial_intelligence_interest': 'ai_engineer',
+                'game_development_interest': 'game_developer',
+                'systems_programming_interest': 'systems_engineer'
+            };
+            
+            // Progress bar elements
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const surveyProgress = document.querySelector('.survey-progress');
+            
+            // Smooth animation for rating value display
+            function animateValue(obj, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    obj.textContent = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+            
+            function determineRecommendedCareer() {
+                // Create an array of {field, value} objects
+                const interestScores = [];
+                
+                for (const input of rangeInputs) {
+                    interestScores.push({
+                        field: input.id,
+                        value: parseInt(input.value)
+                    });
+                }
+                
+                // Sort by score (highest first)
+                interestScores.sort((a, b) => b.value - a.value);
+                
+                // Get the top interest area
+                const topInterest = interestScores[0];
+                
+                // Set the recommended career field based on the highest score
+                document.getElementById('recommended_career').value = careerMapping[topInterest.field] || 'software_developer';
+            }
+            
+            // Calculate and update survey progress
+            function updateProgress() {
+                // Count total required inputs (sliders + radio buttons)
+                const totalRequiredInputs = 
+                    document.querySelectorAll('.rating-input').length + 
+                    document.querySelectorAll('input[type="radio"][required]').length / 2; // Divide by 2 because we have 2 radio groups
+                
+                // Count filled inputs
+                let filledInputs = document.querySelectorAll('.rating-input').length; // All sliders are pre-filled
+                
+                // Count checked radio buttons (by groups)
+                const radioGroups = {};
+                document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+                    radioGroups[radio.name] = true;
+                });
+                
+                filledInputs += Object.keys(radioGroups).length;
+                
+                // Calculate progress percentage
+                const progressPercentage = Math.round((filledInputs / totalRequiredInputs) * 100);
+                
+                // Update progress bar and text with animation
+                progressBar.style.width = progressPercentage + '%';
+                progressText.textContent = progressPercentage + '%';
+                
+                return progressPercentage;
+            }
+            
+            rangeInputs.forEach(input => {
+                // Set initial background and value display
+                setRangeBackground(input);
+                if (valueDisplays[input.id]) {
+                    valueDisplays[input.id].textContent = input.value;
+                }
+                
+                // Update background when value changes
+                input.addEventListener('input', () => {
+                    const oldValue = parseInt(valueDisplays[input.id].textContent);
+                    const newValue = parseInt(input.value);
+                    
+                    setRangeBackground(input);
+                    
+                    if (valueDisplays[input.id]) {
+                        if (oldValue !== newValue) {
+                            animateValue(valueDisplays[input.id], oldValue, newValue, 300);
+                            
+                            // Add subtle animation to rating item
+                            const ratingItem = input.closest('.rating-item');
+                            ratingItem.style.transform = 'scale(1.03)';
+                            setTimeout(() => {
+                                ratingItem.style.transform = '';
+                            }, 300);
+                        }
+                    }
+                    
+                    determineRecommendedCareer();
+                    updateProgress();
+                });
+            });
+            
+            // Listen for radio button changes to update progress
+            radioInputs.forEach(input => {
+                input.addEventListener('change', updateProgress);
+            });
+            
+            function setRangeBackground(input) {
+                const min = input.min || 1;
+                const max = input.max || 5;
+                const value = input.value;
+                const percentage = ((value - min) / (max - min)) * 100;
+                
+                input.style.background = `linear-gradient(to right, var(--primary) ${percentage}%, var(--background-light) ${percentage}%)`;
+            }
+            
+            // Radio options highlighting
+            const radioOptions = document.querySelectorAll('.radio-option');
+            
+            radioOptions.forEach(option => {
+                const radioInput = option.querySelector('input[type="radio"]');
+                
+                // Set initial state
+                if (radioInput.checked) {
+                    option.classList.add('selected');
+                }
+                
+                // Update on change
+                radioInput.addEventListener('change', () => {
+                    // Remove selected class from all options in same group
+                    const name = radioInput.getAttribute('name');
+                    document.querySelectorAll(`.radio-option input[name="${name}"]`).forEach(input => {
+                        input.closest('.radio-option').classList.remove('selected');
+                    });
+                    
+                    // Add selected class to this option
+                    if (radioInput.checked) {
+                        option.classList.add('selected');
+                        
+                        // Add animation to selected option
+                        option.style.transform = 'scale(1.03) translateY(-3px)';
+                        setTimeout(() => {
+                            option.style.transform = 'translateY(-3px)';
+                        }, 300);
+                    }
+                });
+            });
+            
+            // Smooth scroll for sections
+            document.querySelectorAll('.section-title').forEach(title => {
+                title.addEventListener('click', () => {
+                    const section = title.closest('.survey-section');
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+            
+            // Make progress bar sticky on scroll
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 200) {
+                    surveyProgress.classList.add('sticky');
+                } else {
+                    surveyProgress.classList.remove('sticky');
+                }
+            });
+            
+            // Set initial recommended career and progress
+            determineRecommendedCareer();
+            updateProgress();
+            
+            // Animate survey sections on load
+            const surveySections = document.querySelectorAll('.survey-section');
+            surveySections.forEach((section, index) => {
+                setTimeout(() => {
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+            
+            // Show/hide fixed footer on scroll and on mobile
+            const fixedFooter = document.querySelector('.fixed-survey-footer');
+            if (fixedFooter) {
+                if (window.innerWidth < 768) {
+                    fixedFooter.classList.remove('d-none');
+                }
+                
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth < 768) {
+                        fixedFooter.classList.remove('d-none');
+                    } else {
+                        fixedFooter.classList.add('d-none');
+                    }
+                });
+                
+                // Show footer on scroll to bottom
+                window.addEventListener('scroll', function() {
+                    const scrollPosition = window.scrollY + window.innerHeight;
+                    const pageHeight = document.body.offsetHeight;
+                    
+                    if (scrollPosition > pageHeight - 300) {
+                        fixedFooter.style.transform = 'translateY(100%)';
+                    } else {
+                        fixedFooter.style.transform = '';
+                    }
+                });
+            }
+            
+            // Submit button enhanced hover effect
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.addEventListener('mouseenter', () => {
+                    submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Let\'s Discover Your Path!';
+                    submitBtn.style.transform = 'translateY(-8px)';
+                    submitBtn.style.boxShadow = '0 15px 30px rgba(98, 0, 234, 0.6)';
+                });
+                
+                submitBtn.addEventListener('mouseleave', () => {
+                    submitBtn.innerHTML = '<i class="fas fa-rocket"></i> Find My Ideal Career Path';
+                    submitBtn.style.transform = '';
+                    submitBtn.style.boxShadow = '';
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Generating Your Learning Path{% endblock %}
+
+{% block content %}
+<div class="loading-container">
+    <div class="loading-content text-center">
+        <div class="loading-icon mb-4">
+            <i class="fas fa-brain fa-4x animate-pulse"></i>
+        </div>
+        <h2 class="mb-3">Crafting Your Personalized Learning Journey</h2>
+        <p class="text-muted mb-4">We're creating customized courses based on your learning style, career goals, and time availability.</p>
+        
+        <div class="progress mb-4" style="height: 10px;">
+            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+        </div>
+        
+        <div id="status-message" class="text-muted mb-4">
+            Analyzing your learning preferences...
+        </div>
+        
+        <!-- Manim Video Generation Progress -->
+        <div id="manim-progress-container" class="mb-4" style="display: none;">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-film me-2"></i>Manim Video Generation Progress
+                </div>
+                <div class="card-body">
+                    <div class="manim-progress-info">
+                        <p id="manim-current-video" class="mb-2">Generating video for: <span class="fw-bold">...</span></p>
+                        <div class="progress mb-2" style="height: 8px;">
+                            <div id="manim-progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <p id="manim-progress-count" class="small text-muted">
+                            0/0 videos completed
+                        </p>
+                    </div>
+                    <div id="manim-details" class="mt-3 text-start bg-light p-2 rounded" style="max-height: 120px; overflow-y: auto; font-family: monospace; font-size: 0.8rem;">
+                        <div class="text-muted p-2">Waiting for progress details...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="loading-steps">
+            <div class="step current" id="step-1">
+                <div class="step-icon"><i class="fas fa-user-cog"></i></div>
+                <div class="step-content">Analyzing your learning profile</div>
+            </div>
+            <div class="step" id="step-2">
+                <div class="step-icon"><i class="fas fa-drafting-compass"></i></div>
+                <div class="step-content">Designing course structure</div>
+            </div>
+            <div class="step" id="step-3">
+                <div class="step-icon"><i class="fas fa-film"></i></div>
+                <div class="step-content">Generating course videos</div>
+            </div>
+            <div class="step" id="step-4">
+                <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="step-content">Finalizing your learning path</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .loading-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+    }
+    
+    .loading-content {
+        max-width: 600px;
+        padding: 30px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .animate-pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 0.6; transform: scale(0.95); }
+        50% { opacity: 1; transform: scale(1.05); }
+        100% { opacity: 0.6; transform: scale(0.95); }
+    }
+    
+    .loading-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        position: relative;
+    }
+    
+    .loading-steps:before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e0e0e0;
+        z-index: 1;
+    }
+    
+    .step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        width: 22%;
+    }
+    
+    .step-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        color: #777;
+    }
+    
+    .step.current .step-icon {
+        background: #4a6cf7;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.2);
+    }
+    
+    .step.completed .step-icon {
+        background: #4caf50;
+        color: white;
+    }
+    
+    .step-content {
+        font-size: 0.85rem;
+        color: #777;
+    }
+    
+    .step.current .step-content {
+        color: #333;
+        font-weight: 600;
+    }
+    
+    #manim-details {
+        font-family: 'Courier New', monospace;
+        line-height: 1.5;
+    }
+    
+    .status-detail {
+        padding: 3px 0;
+        border-bottom: 1px dotted #eee;
+    }
+    
+    .status-timestamp {
+        color: #6c757d;
+        margin-right: 8px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const progressBar = document.getElementById('progress-bar');
+        const statusMessage = document.getElementById('status-message');
+        const steps = [
+            document.getElementById('step-1'),
+            document.getElementById('step-2'),
+            document.getElementById('step-3'),
+            document.getElementById('step-4')
+        ];
+        
+        // Manim progress elements
+        const manimContainer = document.getElementById('manim-progress-container');
+        const manimProgressBar = document.getElementById('manim-progress-bar');
+        const manimCurrentVideo = document.getElementById('manim-current-video');
+        const manimProgressCount = document.getElementById('manim-progress-count');
+        const manimDetails = document.getElementById('manim-details');
+        
+        function updateProgress(percent, message, currentStep, manimProgress) {
+            progressBar.style.width = percent + '%';
+            statusMessage.textContent = message;
+            
+            // Update steps
+            steps.forEach((step, index) => {
+                step.classList.remove('current', 'completed');
+                if (index < currentStep - 1) {
+                    step.classList.add('completed');
+                } else if (index === currentStep - 1) {
+                    step.classList.add('current');
+                }
+            });
+            
+            // Update Manim progress if available (step 3 is video generation)
+            if (currentStep === 3 && manimProgress && Object.keys(manimProgress).length > 0) {
+                manimContainer.style.display = 'block';
+                
+                // Update progress bar
+                const manimPercent = manimProgress.total > 0 
+                    ? Math.floor((manimProgress.completed / manimProgress.total) * 100) 
+                    : 0;
+                manimProgressBar.style.width = manimPercent + '%';
+                
+                // Update current video
+                if (manimProgress.current) {
+                    manimCurrentVideo.innerHTML = `Generating video for: <span class="fw-bold">${manimProgress.current}</span>`;
+                }
+                
+                // Update progress count
+                manimProgressCount.textContent = `${manimProgress.completed}/${manimProgress.total} videos completed`;
+                
+                // Update details
+                if (manimProgress.details && manimProgress.details.length > 0) {
+                    manimDetails.innerHTML = '';
+                    manimProgress.details.forEach(detail => {
+                        const detailElement = document.createElement('div');
+                        detailElement.className = 'status-detail';
+                        detailElement.innerHTML = detail;
+                        manimDetails.appendChild(detailElement);
+                    });
+                    
+                    // Scroll to bottom of details
+                    manimDetails.scrollTop = manimDetails.scrollHeight;
+                }
+            } else if (currentStep !== 3) {
+                // Hide Manim progress if not in step 3
+                manimContainer.style.display = 'none';
+            }
+        }
+        
+        // Check generation status every 3 seconds
+        function checkStatus() {
+            fetch('/api/course-generation/status')
+                .then(response => response.json())
+                .then(data => {
+                    updateProgress(
+                        data.percent, 
+                        data.message, 
+                        data.step, 
+                        data.manim_progress
+                    );
+                    
+                    if (data.completed) {
+                        window.location.href = '/my_courses';
+                    } else {
+                        setTimeout(checkStatus, 2000);  // Check more frequently (2s)
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking status:', error);
+                    setTimeout(checkStatus, 5000);
+                });
+        }
+        
+        // Start checking status
+        setTimeout(checkStatus, 1000);
+    });
+</script>
+{% endblock %} 

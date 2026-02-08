@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Track your learning progress">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Progress</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item active">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Survey Required Notice - This will never be visible to users because we redirect in the view,
+                 but it's here as an extra precaution in case of routing issues -->
+            {% if not user.is_survey_completed %}
+            <div class="survey-required-notice">
+                <div class="notice-content">
+                    <i class="fas fa-exclamation-circle notice-icon"></i>
+                    <div class="notice-text">
+                        <h3>Complete Your CS Interest Survey</h3>
+                        <p>Before accessing your progress data, please complete the CS interest survey to help us personalize your experience.</p>
+                    </div>
+                    <a href="{{ url_for('views.cs_interest_survey') }}" class="btn btn-primary">Take Survey Now</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Page Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Your Progress</h1>
+                    <p>Track your learning journey and achievements</p>
+                </div>
+                <div class="header-actions">
+                    <div class="time-filter">
+                        <button class="time-filter-btn active" data-period="week">Week</button>
+                        <button class="time-filter-btn" data-period="month">Month</button>
+                        <button class="time-filter-btn" data-period="year">Year</button>
+                        <button class="time-filter-btn" data-period="all">All Time</button>
+                    </div>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-download"></i>
+                        <span class="tooltip-text">Download report</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-share-alt"></i>
+                        <span class="tooltip-text">Share progress</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="progress-overview">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-title">Learning Time</h3>
+                        <div class="stat-value">48h 23m</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>12% from last month</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-title">Courses Completed</h3>
+                        <div class="stat-value">8</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>2 more than last month</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-title">Certificates Earned</h3>
+                        <div class="stat-value">5</div>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>1 new this month</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-title">Current Streak</h3>
+                        <div class="stat-value">23 days</div>
+                        <div class="stat-change neutral">
+                            <i class="fas fa-minus"></i>
+                            <span>Same as last week</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Learning Activity -->
+            <div class="section-header">
+                <h2 class="section-title">Learning Activity</h2>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: var(--primary);"></span>
+                        <span>Learning Time</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: var(--accent-color);"></span>
+                        <span>Completed Tasks</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container enhanced-card">
+                <canvas id="activityChart" height="300"></canvas>
+            </div>
+            
+            <!-- Skill Growth -->
+            <div class="section-header">
+                <h2 class="section-title">Skill Growth</h2>
+                <select class="skill-period-select">
+                    <option value="3">Last 3 months</option>
+                    <option value="6">Last 6 months</option>
+                    <option value="12" selected>Last 12 months</option>
+                </select>
+            </div>
+            
+            <div class="skills-container enhanced-card">
+                <div class="skills-grid">
+                    <!-- Skill Item 1 -->
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-icon programming">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h3 class="skill-name">JavaScript</h3>
+                                <div class="skill-level">Advanced</div>
+                            </div>
+                            <div class="skill-percentage">85%</div>
+                        </div>
+                        <div class="skill-progress-bar">
+                            <div class="skill-progress" style="width: 85%;"></div>
+                        </div>
+                        <div class="skill-growth">
+                            <span class="positive">+15% growth</span>
+                            <span class="skill-time">80 hours spent</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Item 2 -->
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-icon data-science">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h3 class="skill-name">Data Science</h3>
+                                <div class="skill-level">Intermediate</div>
+                            </div>
+                            <div class="skill-percentage">65%</div>
+                        </div>
+                        <div class="skill-progress-bar">
+                            <div class="skill-progress" style="width: 65%;"></div>
+                        </div>
+                        <div class="skill-growth">
+                            <span class="positive">+22% growth</span>
+                            <span class="skill-time">45 hours spent</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Item 3 -->
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-icon design">
+                                <i class="fas fa-paint-brush"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h3 class="skill-name">UI/UX Design</h3>
+                                <div class="skill-level">Beginner</div>
+                            </div>
+                            <div class="skill-percentage">40%</div>
+                        </div>
+                        <div class="skill-progress-bar">
+                            <div class="skill-progress" style="width: 40%;"></div>
+                        </div>
+                        <div class="skill-growth">
+                            <span class="positive">+40% growth</span>
+                            <span class="skill-time">28 hours spent</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Item 4 -->
+                    <div class="skill-item">
+                        <div class="skill-header">
+                            <div class="skill-icon mobile">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="skill-info">
+                                <h3 class="skill-name">Mobile Development</h3>
+                                <div class="skill-level">Intermediate</div>
+                            </div>
+                            <div class="skill-percentage">60%</div>
+                        </div>
+                        <div class="skill-progress-bar">
+                            <div class="skill-progress" style="width: 60%;"></div>
+                        </div>
+                        <div class="skill-growth">
+                            <span class="positive">+18% growth</span>
+                            <span class="skill-time">52 hours spent</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="skill-radar-container">
+                    <canvas id="skillRadarChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <!-- Achievements -->
+            <div class="section-header">
+                <h2 class="section-title">Achievements</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="achievements-container enhanced-card">
+                <div class="achievements-grid">
+                    <!-- Achievement 1 -->
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h3 class="achievement-title">Fast Learner</h3>
+                            <p class="achievement-description">Complete 5 courses in a single month</p>
+                            <div class="achievement-meta">
+                                <span class="achievement-date">Unlocked: Jun 12, 2025</span>
+                                <span class="achievement-points">+500 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement 2 -->
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h3 class="achievement-title">Consistent Learner</h3>
+                            <p class="achievement-description">Maintain a 15-day learning streak</p>
+                            <div class="achievement-meta">
+                                <span class="achievement-date">Unlocked: Jul 8, 2025</span>
+                                <span class="achievement-points">+300 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement 3 -->
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h3 class="achievement-title">Certified Professional</h3>
+                            <p class="achievement-description">Earn your first course certificate</p>
+                            <div class="achievement-meta">
+                                <span class="achievement-date">Unlocked: May 23, 2025</span>
+                                <span class="achievement-points">+200 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement 4 -->
+                    <div class="achievement-item locked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h3 class="achievement-title">Master of Skills</h3>
+                            <p class="achievement-description">Reach advanced level in 3 different skills</p>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 33%;"></div>
+                                </div>
+                                <span class="progress-text">1/3 completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement 5 -->
+                    <div class="achievement-item locked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h3 class="achievement-title">Community Contributor</h3>
+                            <p class="achievement-description">Help 10 other students by answering their questions</p>
+                            <div class="achievement-progress">
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 70%;"></div>
+                                </div>
+                                <span class="progress-text">7/10 completed</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Achievement 6 -->
+                    <div class="achievement-item unlocked">
+                        <div class="achievement-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="achievement-content">
+                            <h3 class="achievement-title">Dedicated Learner</h3>
+                            <p class="achievement-description">Spend 50 hours learning on the platform</p>
+                            <div class="achievement-meta">
+                                <span class="achievement-date">Unlocked: Jul 20, 2025</span>
+                                <span class="achievement-points">+400 XP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Learning Goals -->
+            <div class="section-header">
+                <h2 class="section-title">Learning Goals</h2>
+                <button class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i> New Goal
+                </button>
+            </div>
+            
+            <div class="goals-container enhanced-card">
+                <div class="goals-list">
+                    <!-- Goal 1 -->
+                    <div class="goal-item">
+                        <div class="goal-progress-circle" data-value="75">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-circle-bg" stroke="#e9ecef" stroke-width="6" fill="transparent" r="25" cx="30" cy="30"/>
+                                <circle class="progress-ring-circle" stroke="#6200ea" stroke-width="6" fill="transparent" r="25" cx="30" cy="30" 
+                                        stroke-dasharray="157" stroke-dashoffset="39.25"/>
+                            </svg>
+                            <span class="progress-text">75%</span>
+                        </div>
+                        
+                        <div class="goal-content">
+                            <div class="goal-header">
+                                <h3 class="goal-title">Complete "Advanced JavaScript" Course</h3>
+                                <div class="goal-actions">
+                                    <button class="goal-action-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="goal-action-btn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-details">
+                                <div class="goal-deadline">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Due: August 15, 2025</span>
+                                </div>
+                                <div class="goal-status in-progress">
+                                    <i class="fas fa-spinner"></i>
+                                    <span>In Progress</span>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-milestones">
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Complete Basics Module</span>
+                                </div>
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Complete Advanced Functions Module</span>
+                                </div>
+                                <div class="milestone active">
+                                    <i class="fas fa-circle"></i>
+                                    <span>Working on Async Programming Module</span>
+                                </div>
+                                <div class="milestone">
+                                    <i class="far fa-circle"></i>
+                                    <span>Start Final Project</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Goal 2 -->
+                    <div class="goal-item">
+                        <div class="goal-progress-circle" data-value="25">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-circle-bg" stroke="#e9ecef" stroke-width="6" fill="transparent" r="25" cx="30" cy="30"/>
+                                <circle class="progress-ring-circle" stroke="#6200ea" stroke-width="6" fill="transparent" r="25" cx="30" cy="30" 
+                                        stroke-dasharray="157" stroke-dashoffset="117.75"/>
+                            </svg>
+                            <span class="progress-text">25%</span>
+                        </div>
+                        
+                        <div class="goal-content">
+                            <div class="goal-header">
+                                <h3 class="goal-title">Build Portfolio Website</h3>
+                                <div class="goal-actions">
+                                    <button class="goal-action-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="goal-action-btn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-details">
+                                <div class="goal-deadline">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Due: September 30, 2025</span>
+                                </div>
+                                <div class="goal-status in-progress">
+                                    <i class="fas fa-spinner"></i>
+                                    <span>In Progress</span>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-milestones">
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Design Mockup</span>
+                                </div>
+                                <div class="milestone active">
+                                    <i class="fas fa-circle"></i>
+                                    <span>Develop Homepage</span>
+                                </div>
+                                <div class="milestone">
+                                    <i class="far fa-circle"></i>
+                                    <span>Create Project Showcases</span>
+                                </div>
+                                <div class="milestone">
+                                    <i class="far fa-circle"></i>
+                                    <span>Deploy Website</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Goal 3 -->
+                    <div class="goal-item">
+                        <div class="goal-progress-circle" data-value="100">
+                            <svg class="progress-ring" width="60" height="60">
+                                <circle class="progress-ring-circle-bg" stroke="#e9ecef" stroke-width="6" fill="transparent" r="25" cx="30" cy="30"/>
+                                <circle class="progress-ring-circle" stroke="#28a745" stroke-width="6" fill="transparent" r="25" cx="30" cy="30" 
+                                        stroke-dasharray="157" stroke-dashoffset="0"/>
+                            </svg>
+                            <span class="progress-text">100%</span>
+                        </div>
+                        
+                        <div class="goal-content">
+                            <div class="goal-header">
+                                <h3 class="goal-title">Learn Python Fundamentals</h3>
+                                <div class="goal-actions">
+                                    <button class="goal-action-btn">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="goal-action-btn">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-details">
+                                <div class="goal-deadline">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Completed: July 1, 2025</span>
+                                </div>
+                                <div class="goal-status complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Completed</span>
+                                </div>
+                            </div>
+                            
+                            <div class="goal-milestones">
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Syntax and Basic Concepts</span>
+                                </div>
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Data Structures</span>
+                                </div>
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Functions and Modules</span>
+                                </div>
+                                <div class="milestone complete">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Final Project: Data Analysis</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar on mobile
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    
+                    // Toggle between hamburger and close icon
+                    const icon = this.querySelector('i');
+                    if (sidebar.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                });
+            }
+            
+            // Handle responsive sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    document.body.style.overflow = '';
+                    
+                    // Reset icon
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+            
+            // Time Filter Buttons
+            const timeFilterBtns = document.querySelectorAll('.time-filter-btn');
+            timeFilterBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    timeFilterBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Here you would fetch and update data for the selected time period
+                    const period = this.getAttribute('data-period');
+                    console.log(`Switching to ${period} view`);
+                    updateCharts(period);
+                });
+            });
+            
+            // Learning Activity Chart
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            const activityChart = new Chart(activityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Learning Time (hours)',
+                            data: [2.5, 1.8, 3.2, 0.5, 2.1, 3.7, 2.8],
+                            backgroundColor: 'rgba(98, 0, 234, 0.7)',
+                            borderColor: 'rgba(98, 0, 234, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Completed Tasks',
+                            data: [4, 3, 5, 1, 3, 6, 4],
+                            backgroundColor: 'rgba(255, 105, 180, 0.7)',
+                            borderColor: 'rgba(255, 105, 180, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            
+            // Skill Radar Chart
+            const radarCtx = document.getElementById('skillRadarChart').getContext('2d');
+            const skillRadarChart = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['JavaScript', 'Data Science', 'UI/UX Design', 'Mobile Dev', 'DevOps', 'Soft Skills'],
+                    datasets: [{
+                        label: 'Current Skills',
+                        data: [85, 65, 40, 60, 30, 75],
+                        backgroundColor: 'rgba(98, 0, 234, 0.2)',
+                        borderColor: 'rgba(98, 0, 234, 0.8)',
+                        pointBackgroundColor: 'rgba(98, 0, 234, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(98, 0, 234, 1)',
+                        borderWidth: 2
+                    },
+                    {
+                        label: '3 Months Ago',
+                        data: [70, 43, 0, 42, 30, 65],
+                        backgroundColor: 'rgba(210, 210, 210, 0.2)',
+                        borderColor: 'rgba(210, 210, 210, 0.8)',
+                        pointBackgroundColor: 'rgba(210, 210, 210, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(210, 210, 210, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: 'rgba(0, 0, 0, 0.7)'
+                            },
+                            pointLabels: {
+                                color: 'rgba(0, 0, 0, 0.7)',
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                boxWidth: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Update charts based on selected period
+            function updateCharts(period) {
+                let learningData, tasksData, labels;
+                
+                switch(period) {
+                    case 'week':
+                        labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                        learningData = [2.5, 1.8, 3.2, 0.5, 2.1, 3.7, 2.8];
+                        tasksData = [4, 3, 5, 1, 3, 6, 4];
+                        break;
+                    case 'month':
+                        labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                        learningData = [12.6, 9.8, 15.2, 10.9];
+                        tasksData = [18, 15, 22, 14];
+                        break;
+                    case 'year':
+                        labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                        learningData = [30, 35, 40, 38, 42, 48, 52, 0, 0, 0, 0, 0];
+                        tasksData = [45, 50, 60, 55, 65, 70, 75, 0, 0, 0, 0, 0];
+                        break;
+                    case 'all':
+                        labels = ['2020', '2021', '2022', '2025'];
+                        learningData = [120, 150, 210, 285];
+                        tasksData = [180, 220, 310, 380];
+                        break;
+                }
+                
+                activityChart.data.labels = labels;
+                activityChart.data.datasets[0].data = learningData;
+                activityChart.data.datasets[1].data = tasksData;
+                activityChart.update();
+            }
+            
+            // Skill period select
+            const skillPeriodSelect = document.querySelector('.skill-period-select');
+            skillPeriodSelect.addEventListener('change', function() {
+                // Here you would fetch skill data for the selected period
+                console.log(`Showing skill growth for last ${this.value} months`);
+                
+                // Update radar chart data (this is just a demo)
+                let threeMonthsAgoData;
+                
+                switch(this.value) {
+                    case '3':
+                        threeMonthsAgoData = [70, 43, 0, 42, 30, 65];
+                        break;
+                    case '6':
+                        threeMonthsAgoData = [60, 38, 0, 35, 25, 60];
+                        break;
+                    case '12':
+                        threeMonthsAgoData = [45, 30, 0, 30, 20, 50];
+                        break;
+                }
+                
+                skillRadarChart.data.datasets[1].data = threeMonthsAgoData;
+                skillRadarChart.update();
+            });
+        });
+    </script>
+</body>
+</html> 

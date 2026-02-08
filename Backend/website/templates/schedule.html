@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Learning Schedule">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Schedule</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item active">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Page Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Your Schedule</h1>
+                    <p>Manage your learning calendar and upcoming events</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-search"></i>
+                        <span class="tooltip-text">Search events</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-filter"></i>
+                        <span class="tooltip-text">Filter events</span>
+                    </button>
+                    <button class="action-btn tooltip" id="add-event-btn">
+                        <i class="fas fa-plus"></i>
+                        <span class="tooltip-text">Add new event</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Calendar View Options -->
+            <div class="calendar-view-options enhanced-card">
+                <div class="calendar-view-tabs">
+                    <button class="view-tab active" data-view="month">Month</button>
+                    <button class="view-tab" data-view="week">Week</button>
+                    <button class="view-tab" data-view="day">Day</button>
+                    <button class="view-tab" data-view="agenda">Agenda</button>
+                </div>
+                
+                <div class="calendar-navigation">
+                    <button class="nav-btn" id="prev-btn">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 class="calendar-title">November 2025</h2>
+                    <button class="nav-btn" id="next-btn">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="today-btn">Today</button>
+                </div>
+                
+                <div class="calendar-filter">
+                    <div class="filter-dropdown">
+                        <button class="filter-btn">
+                            <i class="fas fa-filter"></i>
+                            <span>Filter</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="filter-dropdown-content">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark" style="background-color: var(--primary-color)"></span>
+                                <span>Live Sessions</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark" style="background-color: var(--accent-color)"></span>
+                                <span>Group Discussions</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark" style="background-color: var(--success-color)"></span>
+                                <span>Assignments</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark" style="background-color: var(--warning-color)"></span>
+                                <span>Exams</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark" style="background-color: var(--info-color)"></span>
+                                <span>Personal</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Month Calendar View -->
+            <div class="calendar-container enhanced-card">
+                <div class="calendar-grid">
+                    <div class="calendar-header">
+                        <div class="day-name">Sunday</div>
+                        <div class="day-name">Monday</div>
+                        <div class="day-name">Tuesday</div>
+                        <div class="day-name">Wednesday</div>
+                        <div class="day-name">Thursday</div>
+                        <div class="day-name">Friday</div>
+                        <div class="day-name">Saturday</div>
+                    </div>
+                    
+                    <div class="calendar-days">
+                        <!-- Week 1 -->
+                        <div class="calendar-day outside">
+                            <div class="day-number">29</div>
+                        </div>
+                        <div class="calendar-day outside">
+                            <div class="day-number">30</div>
+                        </div>
+                        <div class="calendar-day outside">
+                            <div class="day-number">31</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">1</div>
+                            <div class="calendar-event" style="background-color: var(--primary-color)" data-event-id="1">
+                                <div class="event-time">09:00 AM</div>
+                                <div class="event-title">Introduction to ML</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">2</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">3</div>
+                            <div class="calendar-event" style="background-color: var(--accent-color)" data-event-id="2">
+                                <div class="event-time">02:00 PM</div>
+                                <div class="event-title">React Group Discussion</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">4</div>
+                        </div>
+                        
+                        <!-- Week 2 -->
+                        <div class="calendar-day">
+                            <div class="day-number">5</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">6</div>
+                            <div class="calendar-event" style="background-color: var(--success-color)" data-event-id="3">
+                                <div class="event-time">11:59 PM</div>
+                                <div class="event-title">Data Viz Assignment Due</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">7</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">8</div>
+                            <div class="calendar-event" style="background-color: var(--primary-color)" data-event-id="4">
+                                <div class="event-time">09:00 AM</div>
+                                <div class="event-title">Neural Networks</div>
+                            </div>
+                            <div class="calendar-event" style="background-color: var(--accent-color)" data-event-id="5">
+                                <div class="event-time">11:30 AM</div>
+                                <div class="event-title">React Performance</div>
+                            </div>
+                            <div class="more-events">+1 more</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">9</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">10</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">11</div>
+                        </div>
+                        
+                        <!-- Week 3 -->
+                        <div class="calendar-day">
+                            <div class="day-number">12</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">13</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">14</div>
+                            <div class="calendar-event" style="background-color: var(--warning-color)" data-event-id="6">
+                                <div class="event-time">10:00 AM</div>
+                                <div class="event-title">Data Science Mid-Term</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">15</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">16</div>
+                            <div class="calendar-event" style="background-color: var(--info-color)" data-event-id="7">
+                                <div class="event-time">03:00 PM</div>
+                                <div class="event-title">Study Session</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">17</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">18</div>
+                        </div>
+                        
+                        <!-- Week 4 -->
+                        <div class="calendar-day">
+                            <div class="day-number">19</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">20</div>
+                            <div class="calendar-event" style="background-color: var(--primary-color)" data-event-id="8">
+                                <div class="event-time">09:00 AM</div>
+                                <div class="event-title">Deep Learning Basics</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">21</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">22</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">23</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">24</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">25</div>
+                        </div>
+                        
+                        <!-- Week 5 -->
+                        <div class="calendar-day">
+                            <div class="day-number">26</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">27</div>
+                            <div class="calendar-event" style="background-color: var(--success-color)" data-event-id="9">
+                                <div class="event-time">11:59 PM</div>
+                                <div class="event-title">Machine Learning Project Due</div>
+                            </div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">28</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">29</div>
+                        </div>
+                        <div class="calendar-day">
+                            <div class="day-number">30</div>
+                        </div>
+                        <div class="calendar-day outside">
+                            <div class="day-number">1</div>
+                        </div>
+                        <div class="calendar-day outside">
+                            <div class="day-number">2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Events -->
+            <div class="section-header">
+                <h2 class="section-title">Upcoming Events</h2>
+                <button class="btn btn-primary btn-sm" id="export-calendar-btn">
+                    <i class="fas fa-download"></i> Export Calendar
+                </button>
+            </div>
+            
+            <div class="upcoming-events enhanced-card">
+                <div class="event-list">
+                    <!-- Today's Events -->
+                    <div class="event-day">
+                        <div class="event-day-header">
+                            <h3 class="event-day-title">Today - Wednesday, Nov 8</h3>
+                            <span class="event-count">3 events</span>
+                        </div>
+                        
+                        <div class="event-items">
+                            <div class="event-item">
+                                <div class="event-time-block">
+                                    <div class="event-time">09:00 AM</div>
+                                    <div class="event-duration">45 min</div>
+                                </div>
+                                <div class="event-color-marker" style="background-color: var(--primary-color)"></div>
+                                <div class="event-details">
+                                    <h4 class="event-title">Live Session: Neural Networks</h4>
+                                    <div class="event-info">
+                                        <span class="event-course">Intro to ML</span>
+                                        <span class="event-location"><i class="fas fa-video"></i> Virtual Classroom 3</span>
+                                    </div>
+                                    <div class="event-description">
+                                        Introduction to neural networks, their structure, and basic concepts. Please review the pre-reading materials before joining.
+                                    </div>
+                                </div>
+                                <div class="event-actions">
+                                    <button class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-bell"></i> Remind
+                                    </button>
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="fas fa-sign-in-alt"></i> Join
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="event-item">
+                                <div class="event-time-block">
+                                    <div class="event-time">11:30 AM</div>
+                                    <div class="event-duration">1 hour</div>
+                                </div>
+                                <div class="event-color-marker" style="background-color: var(--accent-color)"></div>
+                                <div class="event-details">
+                                    <h4 class="event-title">Group Discussion: React Performance</h4>
+                                    <div class="event-info">
+                                        <span class="event-course">Advanced React</span>
+                                        <span class="event-location"><i class="fas fa-users"></i> Discussion Room 2</span>
+                                    </div>
+                                    <div class="event-description">
+                                        Interactive discussion on optimizing React applications, memoization techniques, and performance monitoring tools.
+                                    </div>
+                                </div>
+                                <div class="event-actions">
+                                    <button class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-bell"></i> Remind
+                                    </button>
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="fas fa-sign-in-alt"></i> Join
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="event-item">
+                                <div class="event-time-block">
+                                    <div class="event-time">02:00 PM</div>
+                                    <div class="event-type">Deadline</div>
+                                </div>
+                                <div class="event-color-marker" style="background-color: var(--success-color)"></div>
+                                <div class="event-details">
+                                    <h4 class="event-title">Assignment Due: Data Visualization</h4>
+                                    <div class="event-info">
+                                        <span class="event-course">Data Viz with Python</span>
+                                        <span class="event-progress"><i class="fas fa-tasks"></i> 80% Completed</span>
+                                    </div>
+                                    <div class="event-description">
+                                        Create a comprehensive dashboard using Matplotlib, Seaborn, and Plotly showcasing different visualization techniques.
+                                    </div>
+                                </div>
+                                <div class="event-actions">
+                                    <button class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-edit"></i> Continue
+                                    </button>
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tomorrow's Events -->
+                    <div class="event-day">
+                        <div class="event-day-header">
+                            <h3 class="event-day-title">Tomorrow - Thursday, Nov 9</h3>
+                            <span class="event-count">1 event</span>
+                        </div>
+                        
+                        <div class="event-items">
+                            <div class="event-item">
+                                <div class="event-time-block">
+                                    <div class="event-time">10:30 AM</div>
+                                    <div class="event-duration">1.5 hours</div>
+                                </div>
+                                <div class="event-color-marker" style="background-color: var(--primary-color)"></div>
+                                <div class="event-details">
+                                    <h4 class="event-title">Workshop: Data Preprocessing</h4>
+                                    <div class="event-info">
+                                        <span class="event-course">Data Science Fundamentals</span>
+                                        <span class="event-location"><i class="fas fa-laptop-code"></i> Lab 4</span>
+                                    </div>
+                                    <div class="event-description">
+                                        Hands-on workshop covering data cleaning, transformation, and feature engineering techniques for machine learning.
+                                    </div>
+                                </div>
+                                <div class="event-actions">
+                                    <button class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-calendar-times"></i> Reschedule
+                                    </button>
+                                    <button class="btn btn-sm btn-primary">
+                                        <i class="fas fa-calendar-check"></i> Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Modal -->
+            <div id="event-modal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="modal-title">Add New Event</h2>
+                        <button class="close-modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="event-form">
+                            <div class="form-group">
+                                <label for="event-title-input">Event Title</label>
+                                <input type="text" id="event-title-input" placeholder="Enter event title" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="event-date">Date</label>
+                                    <input type="date" id="event-date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-time">Time</label>
+                                    <input type="time" id="event-time" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="event-duration">Duration</label>
+                                    <select id="event-duration">
+                                        <option value="15">15 minutes</option>
+                                        <option value="30">30 minutes</option>
+                                        <option value="45">45 minutes</option>
+                                        <option value="60" selected>1 hour</option>
+                                        <option value="90">1.5 hours</option>
+                                        <option value="120">2 hours</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="event-type">Event Type</label>
+                                    <select id="event-type">
+                                        <option value="live-session">Live Session</option>
+                                        <option value="discussion">Group Discussion</option>
+                                        <option value="assignment">Assignment</option>
+                                        <option value="exam">Exam</option>
+                                        <option value="personal">Personal</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="event-course">Related Course (Optional)</label>
+                                <select id="event-course">
+                                    <option value="">Select a course</option>
+                                    <option value="1">Introduction to Machine Learning</option>
+                                    <option value="2">Advanced React Techniques</option>
+                                    <option value="3">Data Visualization with Python</option>
+                                    <option value="4">Flutter App Development</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="event-location">Location</label>
+                                <input type="text" id="event-location" placeholder="Virtual or physical location">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="event-description">Description</label>
+                                <textarea id="event-description" rows="3" placeholder="Enter event description"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="event-reminder">Reminder</label>
+                                <select id="event-reminder">
+                                    <option value="none">None</option>
+                                    <option value="5">5 minutes before</option>
+                                    <option value="15" selected>15 minutes before</option>
+                                    <option value="30">30 minutes before</option>
+                                    <option value="60">1 hour before</option>
+                                    <option value="1440">1 day before</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="event-recurring">
+                                    <span class="checkbox-custom"></span>
+                                    Recurring Event
+                                </label>
+                            </div>
+                            
+                            <div id="recurring-options" class="form-group hidden">
+                                <label for="recurring-pattern">Repeat Pattern</label>
+                                <select id="recurring-pattern">
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="biweekly">Bi-weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="recurring-end">End After</label>
+                                        <input type="number" id="recurring-end" min="1" max="52" value="12">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="recurring-unit">Occurrences</label>
+                                        <select id="recurring-unit">
+                                            <option value="occurrences">Occurrences</option>
+                                            <option value="weeks">Weeks</option>
+                                            <option value="months">Months</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" id="cancel-event-btn">Cancel</button>
+                        <button class="btn btn-primary" id="save-event-btn">Save Event</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar on mobile
+        const sidebar = document.querySelector('.sidebar');
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                
+                // Toggle between hamburger and close icon
+                const icon = this.querySelector('i');
+                if (sidebar.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            });
+        }
+        
+        // Handle responsive sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                // Reset icon
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+        
+        // Calendar View Tabs
+        const viewTabs = document.querySelectorAll('.view-tab');
+        viewTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                viewTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Here you would implement logic to switch between calendar views
+                const viewType = this.getAttribute('data-view');
+                console.log(`Switching to ${viewType} view`);
+                // For now just a placeholder - in a real implementation, 
+                // you would show/hide different calendar containers
+            });
+        });
+        
+        // Calendar Navigation
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const todayBtn = document.querySelector('.today-btn');
+        const calendarTitle = document.querySelector('.calendar-title');
+        
+        let currentDate = new Date();
+        let currentMonth = currentDate.getMonth();
+        let currentYear = currentDate.getFullYear();
+        
+        prevBtn.addEventListener('click', function() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateCalendarTitle();
+        });
+        
+        nextBtn.addEventListener('click', function() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateCalendarTitle();
+        });
+        
+        todayBtn.addEventListener('click', function() {
+            currentDate = new Date();
+            currentMonth = currentDate.getMonth();
+            currentYear = currentDate.getFullYear();
+            updateCalendarTitle();
+        });
+        
+        function updateCalendarTitle() {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            calendarTitle.textContent = `${months[currentMonth]} ${currentYear}`;
+            
+            // In a real implementation, you would redraw the calendar based on the new month/year
+        }
+        
+        // Event Modal
+        const modal = document.getElementById('event-modal');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const closeModal = document.querySelector('.close-modal');
+        const cancelEventBtn = document.getElementById('cancel-event-btn');
+        const saveEventBtn = document.getElementById('save-event-btn');
+        const eventRecurring = document.getElementById('event-recurring');
+        const recurringOptions = document.getElementById('recurring-options');
+        
+        addEventBtn.addEventListener('click', function() {
+            modal.style.display = 'block';
+            
+            // Set default date to today
+            const today = new Date();
+            document.getElementById('event-date').value = today.toISOString().substr(0, 10);
+            
+            // Set default time to next hour
+            const hours = today.getHours();
+            const minutes = today.getMinutes() > 30 ? '00' : '30';
+            const nextHour = minutes === '00' ? (hours + 1) % 24 : hours;
+            document.getElementById('event-time').value = `${nextHour.toString().padStart(2, '0')}:${minutes}`;
+        });
+        
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        cancelEventBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        saveEventBtn.addEventListener('click', function() {
+            // In a real implementation, you would validate and save the event
+            console.log('Event saved');
+            modal.style.display = 'none';
+            
+            // Show success message
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success';
+            successAlert.textContent = 'Event created successfully';
+            document.querySelector('.flash-messages').appendChild(successAlert);
+            
+            // Remove the alert after 3 seconds
+            setTimeout(() => {
+                successAlert.remove();
+            }, 3000);
+        });
+        
+        eventRecurring.addEventListener('change', function() {
+            if (this.checked) {
+                recurringOptions.classList.remove('hidden');
+            } else {
+                recurringOptions.classList.add('hidden');
+            }
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Calendar Event Click
+        const calendarEvents = document.querySelectorAll('.calendar-event');
+        calendarEvents.forEach(event => {
+            event.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                console.log(`Clicked on event ${eventId}`);
+                
+                // In a real implementation, you would fetch event details and show them
+                // For now, just show a placeholder modal
+                document.getElementById('modal-title').textContent = 'Edit Event';
+                modal.style.display = 'block';
+            });
+        });
+        
+        // Export Calendar Button
+        const exportCalendarBtn = document.getElementById('export-calendar-btn');
+        exportCalendarBtn.addEventListener('click', function() {
+            console.log('Exporting calendar');
+            
+            // In a real implementation, you would generate an ICS file or offer export options
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success';
+            successAlert.textContent = 'Calendar exported successfully';
+            document.querySelector('.flash-messages').appendChild(successAlert);
+            
+            setTimeout(() => {
+                successAlert.remove();
+            }, 3000);
+        });
+    });
+    </script>
+</body>
+</html> 

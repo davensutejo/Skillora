@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Sign up for your adaptive learning platform">
+    <meta name="theme-color" content="#5D3FD3">
+    <title>Skillora - Sign Up</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        .flash-messages {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .alert-success {
+            background-color: #5D3FD3;
+        }
+        
+        .alert-error {
+            background-color: #ff4b4b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Blobs -->
+    <div class="login-background">
+        <div class="bg-blob bg-blob-1"></div>
+        <div class="bg-blob bg-blob-2"></div>
+        <div class="bg-blob bg-blob-3"></div>
+        <div class="bg-blob bg-blob-4"></div>
+        <div class="bg-blob bg-blob-5"></div>
+        <div class="bg-blob bg-blob-6"></div>
+    </div>
+
+    <!-- Logo -->
+    <div class="login-logo-container">
+        <a href="{{ url_for('views.home') }}" class="login-brand-logo">Skillora</a>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content">
+        <section class="login-container">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Login SVG Elements -->
+            <div class="login-svg">
+                <svg class="login-svg-1 blob-morph-1 glow-effect scale-on-scroll" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#7B5FFF" class="gradient-stop-1" />
+                            <stop offset="100%" stop-color="#5D3FD3" class="gradient-stop-2" />
+                        </linearGradient>
+                        <filter id="glow1">
+                            <feGaussianBlur stdDeviation="4" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
+                    <path fill="url(#gradient1)" filter="url(#glow1)" d="M40.2,-62.4C53.5,-56.7,66.8,-48.9,74.7,-37.2C82.5,-25.5,84.9,-9.8,83.3,5.4C81.7,20.6,76.2,35.3,66.8,46.9C57.4,58.4,44.1,66.9,29.6,72.1C15.1,77.3,-0.5,79.4,-16.2,76.6C-31.9,73.8,-47.6,66.2,-58.2,54.2C-68.9,42.3,-74.4,26,-75.8,9.8C-77.1,-6.5,-74.2,-22.7,-66.8,-36.4C-59.3,-50.1,-47.2,-61.2,-33.9,-67C-20.6,-72.7,-6,-73.1,8.2,-72.1C22.5,-71.1,26.8,-68.2,40.2,-62.4Z" transform="translate(100 100)" />
+                </svg>
+                <!-- Other SVG elements as in login.html -->
+            </div>
+
+            <!-- Parallax Elements for Login -->
+            <div class="parallax-wrapper login-parallax">
+                <!-- Will be populated with JS -->
+            </div>
+
+            <!-- Sign Up Box -->
+            <div class="login-box">
+                <div class="login-header">
+                    <div class="login-logo">
+                        <div class="login-logo-circle"></div>
+                        <div class="login-logo-letter">S</div>
+                    </div>
+                    <h1>Join Skillora</h1>
+                    <p>Create an account to start your personalized learning journey</p>
+                </div>
+                
+                <form class="login-form" action="/sign-up" method="POST" id="signupForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-envelope"></i>
+                            <input type="email" id="email" name="email" placeholder="your@email.com" required value="{{ form_data.email }}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-user"></i>
+                            <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required value="{{ form_data.firstName }}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name (Optional)</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-user"></i>
+                            <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" value="{{ form_data.lastName }}">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password1">Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" id="password1" name="password1" placeholder="Create a password" required>
+                            <i class="fa fa-eye-slash toggle-password"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password2">Confirm Password</label>
+                        <div class="input-with-icon">
+                            <i class="fa fa-lock"></i>
+                            <input type="password" id="password2" name="password2" placeholder="Confirm your password" required>
+                            <i class="fa fa-eye-slash toggle-password"></i>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn login-btn" id="signupButton">
+                        <span>Sign Up</span>
+                        <i class="fa fa-arrow-right"></i>
+                    </button>
+                </form>
+                
+                <div class="login-divider">
+                    <span>OR</span>
+                </div>
+                
+                <div class="social-login">
+                    <button type="button" class="social-btn google">
+                        <i class="fab fa-google"></i>
+                        <span>Continue with Google</span>
+                    </button>
+                    <button type="button" class="social-btn facebook">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Continue with Facebook</span>
+                    </button>
+                </div>
+                
+                <div class="signup-link">
+                    <p>Already have an account? <a href="{{ url_for('auth.login') }}">Login</a></p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 Skillora - Transforming the Future of Learning</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script>
+        // Password visibility toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleBtns = document.querySelectorAll('.toggle-password');
+            toggleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        this.classList.remove('fa-eye-slash');
+                        this.classList.add('fa-eye');
+                    } else {
+                        input.type = 'password';
+                        this.classList.remove('fa-eye');
+                        this.classList.add('fa-eye-slash');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

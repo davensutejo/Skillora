@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Your personalized learning path">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Learning Path</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+    
+    <style>
+        /* ========== Global Variables & Animation ========== */
+        :root {
+            --primary: #6200ea;
+            --primary-light: #9d46ff;
+            --primary-medium: rgba(98, 0, 234, 0.3);
+            --primary-dark: #0a00b6;
+            --secondary: #03dac6;
+            --secondary-dark: #018786;
+            --accent-color: #ec407a;
+            --error: #b00020;
+            --success: #00c853;
+            --warning: #f9a825;
+            --text-primary: #121212;
+            --text-secondary: #656565;
+            --background-light: #f8f9ff;
+            --background-white: #ffffff;
+            --card-bg: #fff;
+            --hover-bg: #f1f1f1;
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.07), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --transition-base: all 0.3s ease;
+            --transition-fast: 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+            --transition-normal: 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 2.5rem;
+        }
+        
+        /* Additional variables for specific components */
+        :root {
+            --success-light: rgba(0, 200, 83, 0.2);
+            --warning-light: rgba(249, 168, 37, 0.2);
+            --border-color: rgba(98, 0, 234, 0.1);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* ========== General Layout Improvements ========== */
+        body {
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .main-content {
+            padding: var(--spacing-lg);
+        }
+        
+        /* ========== Component Styles ========== */
+        /* Cards & Containers */
+        .card-container {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+            transition: var(--transition-base);
+        }
+        
+        /* Status Indicators */
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .status-icon.completed, .path-module.completed .module-icon {
+            background-color: var(--success-light);
+            color: var(--success);
+        }
+        
+        .status-icon.current, .path-module.current .module-icon {
+            background-color: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .status-icon.next, .status-icon.locked, .path-module.locked .module-icon {
+            background-color: var(--primary-light);
+            opacity: 0.2;
+            color: var(--text-secondary);
+        }
+        
+        /* Status Text Styling */
+        .status-text h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .status-text p {
+            margin: 0.3rem 0 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Status Labels */
+        .status-label {
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-label.completed {
+            background-color: var(--success-light);
+            color: var(--success);
+        }
+        
+        .status-label.in-progress {
+            background-color: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .status-label.locked {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        /* ========== Path Overview ========== */
+        .path-overview {
+            animation: fadeIn 0.5s ease forwards;
+            margin-bottom: var(--spacing-xl);
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+        }
+        
+        .path-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .path-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--accent-color));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(98, 0, 234, 0.3);
+        }
+        
+        .path-info {
+            flex-grow: 1;
+        }
+        
+        .path-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem;
+        }
+        
+        .path-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .path-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .path-description {
+            margin: 0 0 var(--spacing-xl);
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .path-progress {
+            display: flex;
+            gap: var(--spacing-xl);
+            background-color: var(--background-light);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+        }
+        
+        /* Progress Circle */
+        .progress-circle-container {
+            width: 160px;
+            height: 160px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        
+        .progress-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--background-light);
+            position: relative;
+            transition: background 1.5s ease;
+        }
+        
+        .progress-circle:after {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            background-color: var(--card-bg);
+        }
+        
+        .circle-inner {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+        
+        .circle-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .circle-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .progress-status {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        /* ========== Path Timeline Styling ========== */
+        .path-timeline-container {
+            animation: fadeIn 0.5s ease forwards;
+            margin-bottom: var(--spacing-xl);
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-md);
+            padding: var(--spacing-xl);
+            border: 1px solid var(--border-color);
+        }
+        
+        .path-timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .path-timeline-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            position: relative;
+        }
+        
+        .path-timeline-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--accent-color));
+            border-radius: 3px;
+        }
+        
+        
+        .path-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+        
+        /* Module Styling */
+        .path-module {
+            border-radius: var(--border-radius);
+            background-color: var(--background-light);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: var(--spacing-md);
+            border: 1px solid transparent;
+        }
+        
+        .path-module:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-color);
+        }
+        
+        .path-module.completed {
+            border-left: 4px solid var(--success);
+        }
+        
+        .path-module.current {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .path-module.locked {
+            border-left: 4px solid var(--text-muted);
+            opacity: 0.8;
+        }
+        
+        .module-header {
+            padding: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition-base);
+        }
+        
+        .module-header:hover {
+            background-color: var(--background-light);
+        }
+        
+        .module-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .module-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+        
+        .module-title-area {
+            flex-grow: 1;
+        }
+        
+        .module-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .module-subtitle {
+            margin: 0.15rem 0 0;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .module-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+        }
+        
+        .module-time {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .module-action .btn {
+            padding: 0.35rem 0.85rem;
+            font-size: 0.85rem;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: var(--shadow-sm);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition-base);
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary) !important;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: var(--success-dark, #00a844);
+        }
+        
+        .btn-locked {
+            background-color: var(--text-secondary);
+            color: white;
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-locked:hover {
+            opacity: 0.8;
+        }
+        
+        .module-content {
+            padding: 0 var(--spacing-md) var(--spacing-md);
+            display: none;
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        .module-content.active {
+            display: block;
+        }
+        
+        .module-details {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .module-units {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .unit-item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: 0.7rem;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition-base);
+        }
+        
+        .unit-item:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .unit-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--primary-medium);
+            color: var(--primary);
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .unit-item.completed .unit-icon {
+            background-color: var(--success-light);
+            color: var(--success);
+        }
+        
+        .unit-item.locked .unit-icon {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .unit-title {
+            flex-grow: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .unit-item.locked .unit-title {
+            color: var(--text-secondary);
+        }
+        
+        .unit-duration {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .unit-action {
+            opacity: 0;
+            transition: var(--transition-base);
+        }
+        
+        .unit-item:hover .unit-action {
+            opacity: 1;
+        }
+        
+        /* ========== Recommendation Section ========== */
+        .recommendation-section {
+            animation: fadeIn 0.5s ease forwards;
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .section-header {
+            margin-bottom: var(--spacing-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--accent-color));
+            border-radius: 3px;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+        }
+        
+        .recommendation-card {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background-color: var(--card-bg);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-base);
+            border: 1px solid var(--border-color);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .card-img {
+            height: 150px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .recommendation-card:hover .card-img img {
+            transform: scale(1.05);
+        }
+        
+        .card-label {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .card-content {
+            padding: var(--spacing-lg);
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem;
+        }
+        
+        .card-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin: 0 0 var(--spacing-md);
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        
+        .card-meta {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: var(--spacing-sm);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .card-meta > div {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        /* ========== Alternative Learning Paths Section ========== */
+        .path-options {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        .section {
+            margin-bottom: var(--spacing-xl);
+        }
+        
+        .section-header {
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .section-description {
+            margin-top: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 800px;
+        }
+        
+        .filters-wrapper {
+            margin-bottom: var(--spacing-md);
+        }
+        
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            background-color: var(--background-light);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition-base);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover {
+            background-color: var(--primary-medium);
+            color: var(--primary);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .path-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--spacing-lg);
+        }
+        
+        .path-card {
+            border-radius: var(--border-radius);
+            background-color: var(--card-bg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-base);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            animation: scaleIn 0.3s ease forwards;
+        }
+        
+        .path-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .path-card-header {
+            position: relative;
+            padding: var(--spacing-md);
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .path-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .path-card-badges {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .path-card-popular-tag,
+        .path-card-trending-tag {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .path-card-popular-tag {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .path-card-trending-tag {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .path-card-difficulty {
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .path-card-difficulty.beginner {
+            background-color: var(--success-light);
+            color: var(--success);
+        }
+        
+        .path-card-difficulty.intermediate {
+            background-color: var(--warning-light);
+            color: var(--warning);
+        }
+        
+        .path-card-difficulty.advanced {
+            background-color: rgba(236, 64, 122, 0.15);
+            color: var(--accent-color);
+        }
+        
+        .path-card-body {
+            padding: var(--spacing-lg);
+            flex-grow: 1;
+        }
+        
+        .path-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 0.7rem;
+        }
+        
+        .path-card-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin: 0 0 var(--spacing-md);
+            line-height: 1.5;
+        }
+        
+        .path-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .path-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .path-card-footer {
+            padding: var(--spacing-md);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .path-card-action-btn {
+            flex: 1;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 0.6rem 0;
+        }
+        
+        /* ========== Responsive Adjustments ========== */
+        @media (max-width: 991px) {
+            .path-progress {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .status-item {
+                justify-content: center;
+            }
+            
+            .path-header {
+                flex-wrap: wrap;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .path-info {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .path-meta {
+                justify-content: center;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .path-title {
+                font-size: 1.5rem;
+            }
+            
+            .main-content {
+                padding: var(--spacing-md);
+            }
+            
+            .card-grid, 
+            .path-cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item active">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Page Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Your Learning Path</h1>
+                    <p>Follow your personalized journey to mastery</p>
+                </div>
+
+            </div>
+            
+            <div class="path-overview">
+                <div class="path-header">
+                    <div class="path-icon">
+                        <i class="fas {{ path_details.icon }}"></i>
+                        </div>
+                    <div class="path-info">
+                        <h1 class="path-title">{{ path_details.title }}</h1>
+                        <div class="path-meta">
+                            <span><i class="fas fa-clock"></i> {{ path_details.duration }}</span>
+                            <span><i class="fas fa-book"></i> {{ path_details.courses }} Courses</span>
+                            <span><i class="fas fa-layer-group"></i> {{ path_details.modules }} Modules</span>
+                            <span><i class="fas fa-users"></i> 2,400+ Students</span>
+                    </div>
+                            </div>
+                        </div>
+                
+                <div class="path-description">
+                    {{ path_details.description }}
+                </div>
+                
+                <div class="path-progress">
+                    <div class="progress-circle-container">
+                        <div class="progress-circle" id="progress-circle" data-progress="{{ progress_percentage }}">
+                            <div class="circle-inner">
+                                <div class="circle-number">{{ progress_percentage }}%</div>
+                                <div class="circle-text">completed</div>
+                        </div>
+                    </div>
+                </div>
+                
+                    <div class="progress-status">
+                        <div class="status-item">
+                            <div class="status-icon completed">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="status-text">
+                                <h4>Programming Fundamentals</h4>
+                                <p>Completed on May 15, 2023</p>
+                    </div>
+                </div>
+                
+                        <div class="status-item">
+                            <div class="status-icon current">
+                                <i class="fas fa-clock"></i>
+                    </div>
+                            <div class="status-text">
+                                <h4>Frameworks & Advanced Development</h4>
+                                <p>In progress - 45% completed</p>
+                    </div>
+                    </div>
+                        
+                        <div class="status-item">
+                            <div class="status-icon next">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="status-text">
+                                <h4>Real Projects & Career Preparation</h4>
+                                <p>Unlocked after previous module is completed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="path-timeline-container">
+                <div class="path-timeline-header">
+                    <h2 class="path-timeline-title">Your Learning Map</h2>
+                </div>
+                
+                <div class="path-timeline">
+                    <!-- Module 1 -->
+                    <div class="path-module completed">
+                        <div class="module-header" data-toggle="collapse" data-target="#module-content-1">
+                            <div class="module-marker">
+                                <div class="module-icon">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <div class="module-connector"></div>
+                            </div>
+                            
+                            <div class="module-title-area">
+                                <h3 class="module-title">Programming Fundamentals</h3>
+                                <div class="module-meta">
+                                    <span><i class="fas fa-book"></i> 3 Courses</span>
+                                    <span><i class="fas fa-clock"></i> 4 weeks</span>
+                                </div>
+                            </div>
+                            
+                            <div class="module-progress">
+                                <div class="progress-bar" style="width: 100%"></div>
+                                <span class="progress-text">100%</span>
+                            </div>
+                            
+                            <button class="module-toggle" data-toggle="collapse" data-target="#module-content-1">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="module-content-1" class="module-content active">
+                            <div class="module-description">
+                                Understand the basic concepts of programming and algorithms that form the foundation of software development.
+                            </div>
+                            
+                            <div class="module-courses">
+                                <div class="module-course completed">
+                                    <div class="course-status-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">Basic Data Structures</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 3-4 hours</span>
+                                            <span><i class="fas fa-video"></i> 20 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 5 exercises</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-redo"></i> Repeat
+                                    </button>
+                                </div>
+                                
+                                <div class="module-course completed">
+                                    <div class="course-status-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">Basic Algorithms</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 4-5 hours</span>
+                                            <span><i class="fas fa-video"></i> 22 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 8 exercises</span>
+                                        </div>
+                                </div>
+                                
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-redo"></i> Ulangi
+                                    </button>
+                    </div>
+                    
+                                <div class="module-project completed">
+                                    <div class="project-status-icon">
+                                    <i class="fas fa-check"></i>
+                        </div>
+                        
+                                    <div class="project-details">
+                                        <h4 class="project-title">Programming Fundamentals Project</h4>
+                                        <div class="project-meta">
+                                            <span><i class="fas fa-clock"></i> 8-10 hours</span>
+                                            <span><i class="fas fa-trophy"></i> Final Project</span>
+                                            <span><i class="fas fa-certificate"></i> Certificate</span>
+                            </div>
+                                </div>
+                                
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-redo"></i> Ulangi
+                                    </button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Module 2 -->
+                    <div class="path-module current">
+                        <div class="module-header" data-toggle="collapse" data-target="#module-content-2">
+                            <div class="module-marker">
+                                <div class="module-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="module-connector"></div>
+                            </div>
+                            
+                            <div class="module-title-area">
+                                <h3 class="module-title">Frameworks & Advanced Development</h3>
+                                <div class="module-meta">
+                                    <span><i class="fas fa-book"></i> 4 Courses</span>
+                                    <span><i class="fas fa-project-diagram"></i> 1 Project</span>
+                                    <span><i class="fas fa-clock"></i> 6 weeks</span>
+                                </div>
+                            </div>
+                            
+                            <div class="module-progress">
+                                <div class="progress-bar" style="width: 45%"></div>
+                                <span class="progress-text">45%</span>
+                            </div>
+                            
+                            <button class="module-toggle" data-toggle="collapse" data-target="#module-content-2">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="module-content-2" class="module-content active">
+                            <div class="module-description">
+                                Learn about frameworks and advanced development techniques used in the industry.
+                            </div>
+                            
+                            <div class="module-courses">
+                                <div class="module-course completed">
+                                    <div class="course-status-icon">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">API Development</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 5-6 hours</span>
+                                            <span><i class="fas fa-video"></i> 22 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 8 exercises</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-redo"></i> Ulangi
+                                    </button>
+                                </div>
+                                
+                                <div class="module-course locked">
+                                    <div class="course-status-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">Advanced Database Integration</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 4-5 hours</span>
+                                            <span><i class="fas fa-video"></i> 20 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 7 exercises</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-lock"></i> Locked
+                                    </button>
+                                </div>
+                                
+                                <div class="module-course locked">
+                                    <div class="course-status-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">Testing and Deployment</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 3-4 hours</span>
+                                            <span><i class="fas fa-video"></i> 18 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 5 exercises</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-lock"></i> Locked
+                                    </button>
+                                </div>
+                                
+                                <div class="module-project locked">
+                                    <div class="project-status-icon">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    
+                                    <div class="project-details">
+                                        <h4 class="project-title">Framework Application Project</h4>
+                                        <div class="project-meta">
+                                            <span><i class="fas fa-clock"></i> 8-10 hours</span>
+                                            <span><i class="fas fa-trophy"></i> Final Project</span>
+                                            <span><i class="fas fa-certificate"></i> Certificate</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-lock"></i> Locked
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Module 3 -->
+                    <div class="path-module locked">
+                        <div class="module-header" data-toggle="collapse" data-target="#module-content-3">
+                            <div class="module-marker">
+                                <div class="module-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                <div class="module-connector"></div>
+                            </div>
+                            
+                            <div class="module-title-area">
+                                <h3 class="module-title">Real Projects & Career Preparation</h3>
+                                <div class="module-meta">
+                                    <span><i class="fas fa-book"></i> 3 Courses</span>
+                                    <span><i class="fas fa-project-diagram"></i> 2 Projects</span>
+                                    <span><i class="fas fa-clock"></i> 8 weeks</span>
+                                </div>
+                            </div>
+                            
+                            <div class="module-progress">
+                                <div class="progress-bar" style="width: 0%"></div>
+                                <span class="progress-text">0%</span>
+                            </div>
+                            
+                            <button class="module-toggle" data-toggle="collapse" data-target="#module-content-3">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="module-content-3" class="module-content">
+                            <div class="module-description">
+                                Apply your skills in real projects and prepare yourself for a professional career.
+                    </div>
+                    
+                            <div class="module-courses">
+                                <div class="module-course locked">
+                                    <div class="course-status-icon">
+                                    <i class="fas fa-lock"></i>
+                                </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">Best Practices & User Experience</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 4-5 hours</span>
+                                            <span><i class="fas fa-video"></i> 18 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 6 exercises</span>
+                            </div>
+                                </div>
+                                    
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-lock"></i> Locked
+                                    </button>
+                            </div>
+                                
+                                <div class="module-course locked">
+                                    <div class="course-status-icon">
+                                        <i class="fas fa-lock"></i>
+                            </div>
+                                    
+                                    <div class="course-details">
+                                        <h4 class="course-title">Portfolio & Interview Preparation</h4>
+                                        <div class="course-meta">
+                                            <span><i class="fas fa-clock"></i> 3-4 hours</span>
+                                            <span><i class="fas fa-video"></i> 12 lessons</span>
+                                            <span><i class="fas fa-puzzle-piece"></i> 4 exercises</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary btn-sm">
+                                        <i class="fas fa-lock"></i> Locked
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="path-options">
+                <div class="section">
+            <div class="section-header">
+                        <h2 class="section-title">Alternative Learning Paths</h2>
+                        <p class="section-description">Explore other learning paths that might interest you based on your interests and career goals.</p>
+            </div>
+            
+                    <div class="filters-wrapper">
+                        <div class="filter-buttons">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="web">Web Development</button>
+                            <button class="filter-btn" data-filter="data">Data Science</button>
+                            <button class="filter-btn" data-filter="mobile">Mobile Dev</button>
+                            <button class="filter-btn" data-filter="cloud">Cloud & DevOps</button>
+                            <button class="filter-btn" data-filter="design">UX/UI</button>
+                        </div>
+                    </div>
+                    
+                    <div class="path-cards-container">
+                        {% if recommended_path != 'web_developer' %}
+                        <!-- Path Card 1 -->
+                        <div class="path-card" data-category="web">
+                    <div class="path-card-header">
+                        <div class="path-card-icon">
+                                    <i class="fas fa-globe"></i>
+                        </div>
+                                <div class="path-card-badges">
+                                    <span class="path-card-popular-tag">Popular</span>
+                                    <span class="path-card-difficulty beginner">Beginner</span>
+                        </div>
+                    </div>
+                            
+                    <div class="path-card-body">
+                                <h3 class="path-card-title">Full-Stack Web Developer</h3>
+                                <p class="path-card-description">Master modern web development technologies to build complete web applications from front-end to back-end.</p>
+                                <div class="path-card-meta">
+                                    <span><i class="fas fa-clock"></i> 7 months</span>
+                                    <span><i class="fas fa-book"></i> 14 courses</span>
+                                    <span><i class="fas fa-project-diagram"></i> 4 modules</span>
+                        </div>
+                        </div>
+                            
+                            <div class="path-card-footer">
+                                <button class="btn btn-primary path-card-action-btn">View Details</button>
+                                <button class="btn btn-outline path-card-action-btn">Enroll</button>
+                    </div>
+                </div>
+                        {% endif %}
+                
+                        {% if recommended_path != 'mobile_developer' %}
+                        <!-- Path Card 2 -->
+                        <div class="path-card" data-category="mobile">
+                    <div class="path-card-header">
+                        <div class="path-card-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                                <div class="path-card-badges">
+                                    <span class="path-card-trending-tag">Trending</span>
+                                    <span class="path-card-difficulty intermediate">Intermediate</span>
+                                </div>
+                            </div>
+                            
+                            <div class="path-card-body">
+                        <h3 class="path-card-title">Mobile App Developer</h3>
+                                <p class="path-card-description">Build mobile applications for Android and iOS using modern frameworks and cross-platform technologies.</p>
+                        <div class="path-card-meta">
+                            <span><i class="fas fa-clock"></i> 7 months</span>
+                                    <span><i class="fas fa-book"></i> 12 courses</span>
+                                    <span><i class="fas fa-project-diagram"></i> 4 modules</span>
+                        </div>
+                    </div>
+                            
+                            <div class="path-card-footer">
+                                <button class="btn btn-primary path-card-action-btn">View Details</button>
+                                <button class="btn btn-outline path-card-action-btn">Enroll</button>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if recommended_path != 'data_scientist' %}
+                        <!-- Path Card 3 -->
+                        <div class="path-card" data-category="data">
+                            <div class="path-card-header">
+                                <div class="path-card-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="path-card-badges">
+                                    <span class="path-card-difficulty intermediate">Intermediate</span>
+                                </div>
+                            </div>
+                            
+                    <div class="path-card-body">
+                                <h3 class="path-card-title">Data Science Specialist</h3>
+                                <p class="path-card-description">Learn advanced data analysis techniques, building predictive models, and communicating insights using statistical methods.</p>
+                                <div class="path-card-meta">
+                                    <span><i class="fas fa-clock"></i> 8 months</span>
+                                    <span><i class="fas fa-book"></i> 12 courses</span>
+                                    <span><i class="fas fa-project-diagram"></i> 4 modules</span>
+                        </div>
+                        </div>
+                            
+                            <div class="path-card-footer">
+                                <button class="btn btn-primary path-card-action-btn">View Details</button>
+                                <button class="btn btn-outline path-card-action-btn">Enroll</button>
+                    </div>
+                </div>
+                        {% endif %}
+                
+                        {% if recommended_path != 'ai_engineer' %}
+                        <!-- Path Card 4 -->
+                        <div class="path-card" data-category="data">
+                    <div class="path-card-header">
+                        <div class="path-card-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                                <div class="path-card-badges">
+                                    <span class="path-card-trending-tag">Hot</span>
+                                    <span class="path-card-difficulty advanced">Advanced</span>
+                                </div>
+                            </div>
+                            
+                            <div class="path-card-body">
+                        <h3 class="path-card-title">AI & Machine Learning Engineer</h3>
+                                <p class="path-card-description">Dive into the exciting world of artificial intelligence and machine learning, from fundamentals to advanced applications.</p>
+                        <div class="path-card-meta">
+                            <span><i class="fas fa-clock"></i> 9 months</span>
+                                    <span><i class="fas fa-book"></i> 15 courses</span>
+                                    <span><i class="fas fa-project-diagram"></i> 5 modules</span>
+                        </div>
+                    </div>
+                            
+                            <div class="path-card-footer">
+                                <button class="btn btn-primary path-card-action-btn">View Details</button>
+                                <button class="btn btn-outline path-card-action-btn">Enroll</button>
+                        </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        // Animate progress circle on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                console.log("Learning path script initialized");
+                
+                // Toggle sidebar on mobile
+                const sidebar = document.querySelector('.sidebar');
+                const menuToggle = document.querySelector('.mobile-menu-toggle');
+                
+                if (menuToggle) {
+                    menuToggle.addEventListener('click', function() {
+                        sidebar.classList.toggle('active');
+                        
+                        // Toggle between hamburger and close icon
+                        const icon = this.querySelector('i');
+                        if (sidebar.classList.contains('active')) {
+                            icon.classList.remove('fa-bars');
+                            icon.classList.add('fa-times');
+                        } else {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                        
+                        document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                    });
+                }
+                
+                // Handle responsive sidebar on window resize
+                window.addEventListener('resize', function() {
+                    if (window.innerWidth > 768) {
+                        sidebar.classList.remove('active');
+                        document.body.style.overflow = '';
+                        
+                        // Reset icon
+                        const icon = menuToggle.querySelector('i');
+                        if (icon) {
+                            icon.classList.remove('fa-times');
+                            icon.classList.add('fa-bars');
+                        }
+                    }
+                });
+                
+                const progressCircle = document.getElementById('progress-circle');
+                
+                if (!progressCircle) {
+                    console.error("Progress circle element not found");
+                    return;
+                }
+                
+                // Get progress percentage from data attribute
+                const progressPercentage = parseInt(progressCircle.getAttribute('data-progress'), 10) || 0;
+                
+                console.log("Setting progress circle to: " + progressPercentage + "%");
+                setTimeout(() => {
+                    progressCircle.style.background = `conic-gradient(var(--primary) ${progressPercentage * 3.6}deg, var(--background-light) 0deg)`;
+                }, 500);
+                
+                // Module toggles
+                const moduleToggles = document.querySelectorAll('.module-toggle');
+                console.log("Found " + moduleToggles.length + " module toggles");
+                moduleToggles.forEach(toggle => {
+                    toggle.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const targetId = this.getAttribute('data-target');
+                        if (!targetId) {
+                            console.error("No data-target attribute found on toggle");
+                            return;
+                        }
+                        
+                        const moduleContent = document.getElementById(targetId.substring(1));
+                        if (!moduleContent) {
+                            console.error("Module content not found: " + targetId.substring(1));
+                            return;
+                        }
+                        
+                        const isActive = moduleContent.classList.contains('active');
+                        
+                        if (isActive) {
+                            moduleContent.classList.remove('active');
+                            this.classList.remove('active');
+                            console.log("Collapsed module: " + targetId.substring(1));
+                        } else {
+                            moduleContent.classList.add('active');
+                            this.classList.add('active');
+                            console.log("Expanded module: " + targetId.substring(1));
+                        }
+                    });
+                });
+                
+                // Module headers also toggle content
+                const moduleHeaders = document.querySelectorAll('.module-header');
+                console.log("Found " + moduleHeaders.length + " module headers");
+                moduleHeaders.forEach(header => {
+                    header.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-target');
+                        if (!targetId) {
+                            console.error("No data-target attribute found on header");
+                            return;
+                        }
+                        
+                        const moduleContent = document.getElementById(targetId.substring(1));
+                        if (!moduleContent) {
+                            console.error("Module content not found: " + targetId.substring(1));
+                            return;
+                        }
+                        
+                        const toggle = this.querySelector('.module-toggle');
+                        if (!toggle) {
+                            console.error("Toggle element not found in header");
+                            return;
+                        }
+                        
+                        const isActive = moduleContent.classList.contains('active');
+                        
+                        if (isActive) {
+                            moduleContent.classList.remove('active');
+                            toggle.classList.remove('active');
+                            console.log("Collapsed module from header: " + targetId.substring(1));
+                        } else {
+                            moduleContent.classList.add('active');
+                            toggle.classList.add('active');
+                            console.log("Expanded module from header: " + targetId.substring(1));
+                        }
+                    });
+                });
+                
+                console.log("Learning path script initialized successfully");
+            } catch (error) {
+                console.error("Error in learning path script: ", error);
+            }
+        });
+    </script>
+</body>
+</html> 

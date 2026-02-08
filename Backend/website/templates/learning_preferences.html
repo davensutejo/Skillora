@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Learning Preferences{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card enhanced-card">
+                <div class="card-header">
+                    <h2 class="card-title">Learning Preferences</h2>
+                    <p class="text-muted">Customize your learning experience to match your preferred style and schedule</p>
+                </div>
+                <div class="card-body">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <form method="POST">
+                        <div class="mb-4">
+                            <h4>Learning Style</h4>
+                            <p class="text-muted small">This affects the type of educational content we recommend for you</p>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check learning-style-option">
+                                        <input class="form-check-input" type="radio" name="learning_style" id="visual" value="visual" 
+                                            {% if learning_style == 'visual' %}checked{% endif %}>
+                                        <label class="form-check-label" for="visual">
+                                            <i class="fas fa-eye style-icon"></i>
+                                            <span class="style-title">Visual Learner</span>
+                                            <span class="style-description">I learn best through images, diagrams, and visual demonstrations</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check learning-style-option">
+                                        <input class="form-check-input" type="radio" name="learning_style" id="auditory" value="auditory"
+                                            {% if learning_style == 'auditory' %}checked{% endif %}>
+                                        <label class="form-check-label" for="auditory">
+                                            <i class="fas fa-headphones style-icon"></i>
+                                            <span class="style-title">Auditory Learner</span>
+                                            <span class="style-description">I learn best by listening to lectures and discussions</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check learning-style-option">
+                                        <input class="form-check-input" type="radio" name="learning_style" id="hands-on" value="hands-on"
+                                            {% if learning_style == 'hands-on' %}checked{% endif %}>
+                                        <label class="form-check-label" for="hands-on">
+                                            <i class="fas fa-hand-paper style-icon"></i>
+                                            <span class="style-title">Hands-On Learner</span>
+                                            <span class="style-description">I learn best through practical exercises and projects</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h4>Video Duration Preference</h4>
+                            <p class="text-muted small">How long would you prefer your learning videos to be?</p>
+                            
+                            <div class="range-slider">
+                                <input type="range" class="form-range" id="durationRange" name="preferred_video_duration" 
+                                    min="5" max="60" step="5" value="{{ user_settings.preferred_video_duration }}">
+                                <div class="range-labels">
+                                    <span>Short (5 min)</span>
+                                    <span>Medium (30 min)</span>
+                                    <span>Long (60 min)</span>
+                                </div>
+                                <div class="current-value">
+                                    Currently: <span id="durationValue">{{ user_settings.preferred_video_duration }}</span> minutes
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h4>Daily Learning Goal</h4>
+                            <p class="text-muted small">How many minutes would you like to learn each day?</p>
+                            
+                            <div class="range-slider">
+                                <input type="range" class="form-range" id="goalRange" name="daily_goal_minutes" 
+                                    min="15" max="120" step="15" value="{{ user_settings.daily_goal_minutes }}">
+                                <div class="range-labels">
+                                    <span>15 min</span>
+                                    <span>60 min</span>
+                                    <span>120 min</span>
+                                </div>
+                                <div class="current-value">
+                                    Currently: <span id="goalValue">{{ user_settings.daily_goal_minutes }}</span> minutes
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h4>Theme</h4>
+                                <select class="form-select" name="theme">
+                                    <option value="light" {% if user_settings.theme == 'light' %}selected{% endif %}>Light</option>
+                                    <option value="dark" {% if user_settings.theme == 'dark' %}selected{% endif %}>Dark</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Language</h4>
+                                <select class="form-select" name="language">
+                                    <option value="en" {% if user_settings.language == 'en' %}selected{% endif %}>English</option>
+                                    <option value="es" {% if user_settings.language == 'es' %}selected{% endif %}>Spanish</option>
+                                    <option value="fr" {% if user_settings.language == 'fr' %}selected{% endif %}>French</option>
+                                    <option value="de" {% if user_settings.language == 'de' %}selected{% endif %}>German</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" id="notificationsSwitch" name="notifications" 
+                                {% if user_settings.notification_enabled %}checked{% endif %}>
+                            <label class="form-check-label" for="notificationsSwitch">
+                                Enable learning reminders and notifications
+                            </label>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Save Preferences</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .learning-style-option {
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        cursor: pointer;
+        height: 100%;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .learning-style-option:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    
+    .form-check-input:checked + .form-check-label .learning-style-option {
+        border-color: var(--accent);
+        background-color: var(--accent-light);
+    }
+    
+    .style-icon {
+        font-size: 2rem;
+        color: var(--accent);
+        margin-bottom: 10px;
+        display: block;
+    }
+    
+    .style-title {
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .style-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        display: block;
+    }
+    
+    .range-slider {
+        margin: 20px 0;
+    }
+    
+    .range-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        margin-top: 5px;
+    }
+    
+    .current-value {
+        text-align: center;
+        font-weight: 600;
+        margin-top: 10px;
+        color: var(--accent);
+    }
+    
+    /* Make the card nicer */
+    .enhanced-card {
+        border: none;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, var(--accent-light), var(--accent));
+        color: white;
+        padding: 20px 25px;
+        border-bottom: none;
+    }
+    
+    .card-title {
+        margin-bottom: 5px;
+    }
+    
+    .card-header p {
+        opacity: 0.9;
+        margin-bottom: 0;
+    }
+    
+    .card-body {
+        padding: 30px;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Update displayed values when sliders change
+        const durationRange = document.getElementById('durationRange');
+        const durationValue = document.getElementById('durationValue');
+        
+        durationRange.addEventListener('input', function() {
+            durationValue.textContent = this.value;
+        });
+        
+        const goalRange = document.getElementById('goalRange');
+        const goalValue = document.getElementById('goalValue');
+        
+        goalRange.addEventListener('input', function() {
+            goalValue.textContent = this.value;
+        });
+        
+        // Make entire learning style cards clickable
+        const learningStyleOptions = document.querySelectorAll('.learning-style-option');
+        
+        learningStyleOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const radio = this.querySelector('input[type="radio"]');
+                radio.checked = true;
+            });
+        });
+    });
+</script>
+{% endblock %} 

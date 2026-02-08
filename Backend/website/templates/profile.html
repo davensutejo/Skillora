@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - User Profile">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Profile</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item active">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Your Profile</h1>
+                    <p>Manage your personal information and preferences.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-search"></i>
+                        <span class="tooltip-text">Search</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-bell"></i>
+                        <span class="tooltip-text">Notifications</span>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-cog"></i>
+                        <span class="tooltip-text">Settings</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Profile Content -->
+            <div class="profile-section">
+                <!-- Profile Card -->
+                <div class="enhanced-card profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar-large">
+                            <div class="user-avatar-lg">
+                                {{ user.first_name[0] }}
+                            </div>
+                            <button class="change-avatar-btn">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                        <div class="profile-name">
+                            <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                            <p class="profile-info">{{ user.email }}</p>
+                            <p class="profile-title">Student</p>
+                        </div>
+                        <button class="btn btn-primary edit-profile-btn">
+                            <i class="fas fa-edit"></i>
+                            Edit Profile
+                        </button>
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="profile-stat-item">
+                            <div class="stat-value">4</div>
+                            <div class="stat-label">Courses</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="stat-value">18</div>
+                            <div class="stat-label">Achievements</div>
+                        </div>
+                        <div class="profile-stat-item">
+                            <div class="stat-value">92%</div>
+                            <div class="stat-label">Completion</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Personal Information -->
+                <div class="enhanced-card profile-info-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-user"></i> Personal Information</h3>
+                        <button class="btn btn-secondary btn-sm" id="editPersonalInfoBtn">
+                            <i class="fas fa-pencil-alt"></i> Edit
+                        </button>
+                    </div>
+                    <div class="info-grid" id="personalInfoDisplay">
+                        <div class="info-item">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value">{{ user.first_name }} {{ user.last_name }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">{{ user.email }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value">{{ user.phone or 'Not set' }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Date of Birth</div>
+                            <div class="info-value">{{ date_of_birth_formatted or 'Not set' }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">{{ user.location or 'Not set' }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Member Since</div>
+                            <div class="info-value">{{ member_since }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Personal Info Edit Form -->
+                    <div class="edit-form" id="personalInfoEditForm" style="display: none;">
+                        <form action="{{ url_for('views.update_profile') }}" method="POST">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" name="phone" value="{{ user.phone or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="date_of_birth">Date of Birth</label>
+                                <input type="date" id="date_of_birth" name="date_of_birth" value="{{ user.date_of_birth.strftime('%Y-%m-%d') if user.date_of_birth else '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" name="location" value="{{ user.location or '' }}">
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" id="cancelPersonalInfoBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Bio & Skills -->
+                <div class="enhanced-card profile-bio-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-id-badge"></i> Bio & Skills</h3>
+                        <button class="btn btn-secondary btn-sm" id="editBioBtn">
+                            <i class="fas fa-pencil-alt"></i> Edit
+                        </button>
+                    </div>
+                    <div class="bio-content" id="bioDisplay">
+                        <h4>About Me</h4>
+                        <p>{{ user.bio or 'No bio available yet. Click edit to add your bio.' }}</p>
+                        
+                        <h4>Skills</h4>
+                        <div class="skills-container">
+                            {% if skills %}
+                                {% for skill in skills %}
+                                    <span class="skill-tag">{{ skill.strip() }}</span>
+                                {% endfor %}
+                            {% else %}
+                                <p>No skills added yet. Click edit to add your skills.</p>
+                            {% endif %}
+                        </div>
+                        
+                        <h4>Professional Title</h4>
+                        <p>{{ user.job_title or 'Not specified' }}</p>
+                    </div>
+                    
+                    <!-- Bio Edit Form -->
+                    <div class="edit-form" id="bioEditForm" style="display: none;">
+                        <form action="{{ url_for('views.update_bio') }}" method="POST">
+                            <div class="form-group">
+                                <label for="bio">About Me</label>
+                                <textarea id="bio" name="bio" rows="5">{{ user.bio or '' }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="job_title">Professional Title</label>
+                                <input type="text" id="job_title" name="job_title" value="{{ user.job_title or '' }}" placeholder="e.g. Software Developer, Data Scientist">
+                            </div>
+                            <div class="form-buttons">
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                                <button type="button" class="btn btn-secondary" id="cancelBioBtn">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Learning Achievements -->
+                <div class="enhanced-card achievements-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-award"></i> Achievements</h3>
+                        <a href="{{ url_for('views.progress') }}" class="view-all">
+                            View All <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                    <div class="achievements-grid">
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <h4>30-Day Streak</h4>
+                                <p>Studied for 30 consecutive days</p>
+                            </div>
+                            <div class="achievement-date">
+                                Apr 2025
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <h4>Course Master</h4>
+                                <p>Completed 5 courses with distinction</p>
+                            </div>
+                            <div class="achievement-date">
+                                Mar 2025
+                            </div>
+                        </div>
+                        <div class="achievement-item">
+                            <div class="achievement-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="achievement-info">
+                                <h4>Perfect Score</h4>
+                                <p>Scored 100% on a final assessment</p>
+                            </div>
+                            <div class="achievement-date">
+                                Feb 2025
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Connected Accounts -->
+                <div class="enhanced-card connected-accounts-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-link"></i> Connected Accounts</h3>
+                        <button class="btn btn-secondary btn-sm">
+                            <i class="fas fa-plus"></i> Connect
+                        </button>
+                    </div>
+                    <div class="connected-accounts-list">
+                        <div class="connected-account-item">
+                            <div class="account-icon google">
+                                <i class="fab fa-google"></i>
+                            </div>
+                            <div class="account-info">
+                                <h4>Google</h4>
+                                <p>Connected to {{ user.email }}</p>
+                            </div>
+                            <button class="btn btn-sm">Disconnect</button>
+                        </div>
+                        <div class="connected-account-item">
+                            <div class="account-icon linkedin">
+                                <i class="fab fa-linkedin"></i>
+                            </div>
+                            <div class="account-info">
+                                <h4>LinkedIn</h4>
+                                <p>Not connected</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Connect</button>
+                        </div>
+                        <div class="connected-account-item">
+                            <div class="account-icon github">
+                                <i class="fab fa-github"></i>
+                            </div>
+                            <div class="account-info">
+                                <h4>GitHub</h4>
+                                <p>Not connected</p>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Connect</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle sidebar on mobile
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    
+                    // Toggle between hamburger and close icon
+                    const icon = this.querySelector('i');
+                    if (sidebar.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                });
+            }
+            
+            // Handle responsive sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    document.body.style.overflow = '';
+                    
+                    // Reset icon
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+            
+            // Personal Information Edit
+            const editPersonalInfoBtn = document.getElementById('editPersonalInfoBtn');
+            const personalInfoDisplay = document.getElementById('personalInfoDisplay');
+            const personalInfoEditForm = document.getElementById('personalInfoEditForm');
+            const cancelPersonalInfoBtn = document.getElementById('cancelPersonalInfoBtn');
+            
+            if (editPersonalInfoBtn) {
+                editPersonalInfoBtn.addEventListener('click', function() {
+                    personalInfoDisplay.style.display = 'none';
+                    personalInfoEditForm.style.display = 'block';
+                });
+            }
+            
+            if (cancelPersonalInfoBtn) {
+                cancelPersonalInfoBtn.addEventListener('click', function() {
+                    personalInfoDisplay.style.display = 'grid';
+                    personalInfoEditForm.style.display = 'none';
+                });
+            }
+            
+            // Bio & Skills Edit
+            const editBioBtn = document.getElementById('editBioBtn');
+            const bioDisplay = document.getElementById('bioDisplay');
+            const bioEditForm = document.getElementById('bioEditForm');
+            const cancelBioBtn = document.getElementById('cancelBioBtn');
+            
+            if (editBioBtn) {
+                editBioBtn.addEventListener('click', function() {
+                    bioDisplay.style.display = 'none';
+                    bioEditForm.style.display = 'block';
+                });
+            }
+            
+            if (cancelBioBtn) {
+                cancelBioBtn.addEventListener('click', function() {
+                    bioDisplay.style.display = 'block';
+                    bioEditForm.style.display = 'none';
+                });
+            }
+            
+            // Avatar upload
+            const changeAvatarBtn = document.querySelector('.change-avatar-btn');
+            if (changeAvatarBtn) {
+                changeAvatarBtn.addEventListener('click', function() {
+                    // For now, just show an alert since we don't have file upload set up yet
+                    alert('Avatar upload functionality will be implemented in a future update.');
+                });
+            }
+            
+            // Flash messages auto-hide
+            const flashMessages = document.querySelectorAll('.alert');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.opacity = '0';
+                    setTimeout(function() {
+                        message.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html> 

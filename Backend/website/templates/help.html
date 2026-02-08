@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Your personalized adaptive learning dashboard">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Help Center</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item active">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Help Center</h1>
+                    <p>Find answers to your questions and get support.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-search"></i>
+                        <span class="tooltip-text">Search Help</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-bell"></i>
+                        <span class="tooltip-text">Notifications</span>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Help Content -->
+            <div class="help-section">
+                <!-- Search Bar -->
+                <div class="enhanced-card help-search-card">
+                    <div class="help-search-container">
+                        <input type="text" class="help-search-input" placeholder="Search for topics, questions, or keywords...">
+                        <button class="btn btn-primary help-search-btn">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="popular-searches">
+                        <span>Popular: </span>
+                        <a href="#" class="popular-search-tag">Getting Started</a>
+                        <a href="#" class="popular-search-tag">Account Settings</a>
+                        <a href="#" class="popular-search-tag">Course Access</a>
+                        <a href="#" class="popular-search-tag">Certificates</a>
+                    </div>
+                </div>
+                
+                <!-- Help Categories -->
+                <div class="help-categories">
+                    <div class="enhanced-card help-category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Getting Started</h3>
+                        <p>Learn the basics of using Skillora</p>
+                        <a href="#" class="category-link">View Articles</a>
+                    </div>
+                    
+                    <div class="enhanced-card help-category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h3>Courses & Content</h3>
+                        <p>Everything about courses and learning materials</p>
+                        <a href="#" class="category-link">View Articles</a>
+                    </div>
+                    
+                    <div class="enhanced-card help-category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <h3>Billing & Payments</h3>
+                        <p>Subscription, payments, and refunds</p>
+                        <a href="#" class="category-link">View Articles</a>
+                    </div>
+                    
+                    <div class="enhanced-card help-category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h3>Account & Security</h3>
+                        <p>Profile, security, and privacy settings</p>
+                        <a href="#" class="category-link">View Articles</a>
+                    </div>
+                    
+                    <div class="enhanced-card help-category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <h3>Certificates</h3>
+                        <p>Earning and downloading certificates</p>
+                        <a href="#" class="category-link">View Articles</a>
+                    </div>
+                    
+                    <div class="enhanced-card help-category-card">
+                        <div class="category-icon">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3>Technical Issues</h3>
+                        <p>Troubleshooting and technical support</p>
+                        <a href="#" class="category-link">View Articles</a>
+                    </div>
+                </div>
+                
+                <!-- Frequently Asked Questions -->
+                <div class="enhanced-card faq-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-question-circle"></i> Frequently Asked Questions</h3>
+                        <a href="#" class="view-all">View All FAQs <i class="fas fa-chevron-right"></i></a>
+                    </div>
+                    
+                    <div class="faq-accordion">
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h4>How do I reset my password?</h4>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>To reset your password, go to the login page and click on the "Forgot Password" link. Enter your email address, and we'll send you instructions to reset your password. If you don't receive the email, check your spam folder or contact our support team.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h4>How do I download course materials?</h4>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Course materials can be downloaded from within each course. Navigate to your course, and look for the download icon next to each resource. Some materials may not be available for download due to copyright restrictions.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h4>What happens when I complete a course?</h4>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>When you complete all required assignments and achieve a passing grade, you'll receive a completion certificate. Your progress will be updated on your dashboard, and the course will be added to your completed courses list.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h4>How do I get a refund?</h4>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Refund policies vary by course. Generally, you can request a refund within 7 days of purchase if you've completed less than 25% of the course. To request a refund, go to your account settings, select "Billing" and click on "Request Refund" next to the course.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h4>Can I transfer my course to someone else?</h4>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Courses are non-transferable between accounts. Each subscription or course purchase is tied to the account that made the purchase. If you need to arrange access for someone else, they will need to create their own account and purchase the course separately.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Support -->
+                <div class="enhanced-card contact-support-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-headset"></i> Still Need Help?</h3>
+                    </div>
+                    
+                    <div class="support-options">
+                        <div class="support-option">
+                            <div class="support-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h4>Live Chat</h4>
+                            <p>Chat with our support team in real-time</p>
+                            <button class="btn btn-primary">Start Chat</button>
+                            <div class="support-availability">
+                                <i class="fas fa-circle online"></i> Available 24/7
+                            </div>
+                        </div>
+                        
+                        <div class="support-option">
+                            <div class="support-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <h4>Email Support</h4>
+                            <p>Send us a message and we'll respond within 24 hours</p>
+                            <button class="btn btn-primary">Send Email</button>
+                            <div class="support-availability">
+                                <i class="fas fa-clock"></i> Response within 24 hours
+                            </div>
+                        </div>
+                        
+                        <div class="support-option">
+                            <div class="support-icon">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <h4>Phone Support</h4>
+                            <p>Schedule a call with our support team</p>
+                            <button class="btn btn-primary">Schedule Call</button>
+                            <div class="support-availability">
+                                <i class="fas fa-clock"></i> Mon-Fri, 9AM-5PM EST
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Community Support -->
+                <div class="enhanced-card community-section">
+                    <div class="section-header">
+                        <h3><i class="fas fa-users"></i> Community Support</h3>
+                    </div>
+                    
+                    <div class="community-content">
+                        <p>Join our community forum to connect with other learners, ask questions, share knowledge, and get help from the Skillora community.</p>
+                        <div class="community-stats">
+                            <div class="community-stat">
+                                <span class="stat-value">50K+</span>
+                                <span class="stat-label">Members</span>
+                            </div>
+                            <div class="community-stat">
+                                <span class="stat-value">12K+</span>
+                                <span class="stat-label">Topics</span>
+                            </div>
+                            <div class="community-stat">
+                                <span class="stat-value">98%</span>
+                                <span class="stat-label">Questions Answered</span>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-primary">Visit Community Forum</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JS Files -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/account.js') }}"></script>
+    <script>
+        // FAQ accordion functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            // Toggle sidebar on mobile
+            const sidebar = document.querySelector('.sidebar');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    
+                    // Toggle between hamburger and close icon
+                    const icon = this.querySelector('i');
+                    if (sidebar.classList.contains('active')) {
+                        icon.classList.remove('fa-bars');
+                        icon.classList.add('fa-times');
+                    } else {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                    
+                    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                });
+            }
+            
+            // Handle responsive sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('active');
+                    document.body.style.overflow = '';
+                    
+                    // Reset icon
+                    const icon = menuToggle.querySelector('i');
+                    if (icon) {
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-bars');
+                    }
+                }
+            });
+            
+            // FAQ functionality
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const answer = item.querySelector('.faq-answer');
+                const icon = item.querySelector('.faq-question i');
+                
+                // Initially hide all answers
+                answer.style.maxHeight = '0px';
+                
+                question.addEventListener('click', function() {
+                    // Toggle active class
+                    item.classList.toggle('active');
+                    
+                    // Toggle icon
+                    if (item.classList.contains('active')) {
+                        icon.classList.remove('fa-chevron-down');
+                        icon.classList.add('fa-chevron-up');
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                    } else {
+                        icon.classList.remove('fa-chevron-up');
+                        icon.classList.add('fa-chevron-down');
+                        answer.style.maxHeight = '0px';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

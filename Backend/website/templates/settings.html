@@ -1,0 +1,1038 @@
+{% extends "base.html" %}
+
+{% block title %}Skillora - Settings{% endblock %}
+
+{% block styles %}
+<style>
+    /* Settings Section */
+    .settings-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .settings-nav {
+        background-color: #fff;
+        border-radius: 15px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+    }
+
+    .settings-nav::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+    }
+
+    .settings-tabs {
+        display: flex;
+        list-style: none;
+        padding: 0;
+    }
+
+    .settings-tab {
+        padding: 15px 20px;
+        cursor: pointer;
+        color: #607d8b;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 3px solid transparent;
+        display: flex;
+        align-items: center;
+    }
+
+    .settings-tab i {
+        margin-right: 10px;
+        font-size: 16px;
+    }
+
+    .settings-tab:hover {
+        color: #3a6df0;
+        background-color: #f5f7fa;
+    }
+
+    .settings-tab.active {
+        color: #3a6df0;
+        border-bottom-color: #3a6df0;
+    }
+
+    .settings-card {
+        padding: 30px;
+    }
+
+    .section-header h3 {
+        font-weight: 600;
+        font-size: 18px;
+        color: #333;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-header h3 i {
+        margin-right: 10px;
+        color: #3a6df0;
+    }
+
+    .settings-form {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .form-section {
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 30px;
+    }
+
+    .form-section:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .form-section h4 {
+        font-weight: 600;
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .toggle-setting {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .toggle-info {
+        width: 75%;
+    }
+
+    .toggle-info h5 {
+        font-size: 15px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 5px;
+    }
+
+    .toggle-info p {
+        font-size: 13px;
+        color: #607d8b;
+    }
+
+    /* Settings Tab Content */
+    .settings-tab-content {
+        display: none;
+    }
+
+    .settings-tab-content.active {
+        display: block;
+    }
+
+    /* Career interest summary */
+    .career-interest-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+
+    .interest-profile, .retry-survey-card {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .interest-badge {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 50px;
+        margin: 12px 0 16px;
+        font-weight: 600;
+    }
+
+    .interest-badge i {
+        margin-right: 8px;
+    }
+
+    .interest-high-scores h6 {
+        font-size: 14px;
+        margin-bottom: 12px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .interest-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .interest-list li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: #546e7a;
+    }
+
+    .interest-list li i {
+        width: 20px;
+        margin-right: 8px;
+        color: #3a6df0;
+    }
+
+    .retry-survey-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .retry-survey-header i {
+        font-size: 18px;
+        margin-right: 12px;
+        color: #3a6df0;
+    }
+
+    .retry-survey-header h5 {
+        font-size: 16px;
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .retry-survey-card p {
+        margin-bottom: 20px;
+        font-size: 14px;
+        color: #607d8b;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #6e8efb, #a777e3);
+        color: white;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-gradient i {
+        margin-right: 8px;
+    }
+
+    .btn-gradient:hover {
+        background: linear-gradient(135deg, #5d7de8, #9566d0);
+        color: white;
+    }
+
+    /* Modal Styles */
+    .custom-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.9);
+        width: 90%;
+        max-width: 500px;
+        background-color: #fff;
+        border-radius: 15px;
+        z-index: 1001;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        opacity: 0;
+    }
+
+    .custom-modal.active {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+
+    .modal-icon {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(236, 64, 122, 0.1);
+        color: #ec407a;
+        margin-right: 16px;
+        font-size: 18px;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-weight: 600;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: #90a4ae;
+        font-size: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+        color: #f44336;
+    }
+
+    .modal-body {
+        padding: 20px;
+        color: #607d8b;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .modal-impacts {
+        margin-top: 16px;
+        background-color: #f5f7fa;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .impact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .impact-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .impact-item i {
+        color: #3a6df0;
+        width: 20px;
+        margin-right: 10px;
+    }
+
+    .modal-footer {
+        padding: 20px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+        opacity: 1;
+    }
+
+    @media (max-width: 992px) {
+        .form-row {
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .settings-tabs {
+            padding: 5px;
+        }
+        
+        .settings-tab {
+            padding: 10px 15px;
+            font-size: 13px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .modal-footer {
+            flex-direction: column-reverse;
+        }
+        
+        .modal-footer button {
+            width: 100%;
+        }
+        
+        .settings-card {
+            padding: 15px;
+        }
+        
+        .toggle-setting {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .toggle-info {
+            width: 100%;
+        }
+        
+        .toggle-switch {
+            align-self: flex-start;
+        }
+        
+        .career-interest-summary {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Settings</h1>
+                    <p>Configure your account preferences and manage your settings.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-search"></i>
+                        <span class="tooltip-text">Search</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-bell"></i>
+                        <span class="tooltip-text">Notifications</span>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Settings Content -->
+            <div class="settings-section">
+                <!-- Settings Navigation -->
+                <div class="settings-nav enhanced-card">
+                    <ul class="settings-tabs">
+                        <li class="settings-tab active" data-tab="account">
+                            <i class="fas fa-user-shield"></i> Account
+                        </li>
+                        <li class="settings-tab" data-tab="notifications">
+                            <i class="fas fa-bell"></i> Notifications
+                        </li>
+                        <li class="settings-tab" data-tab="privacy">
+                            <i class="fas fa-lock"></i> Privacy
+                        </li>
+                        <li class="settings-tab" data-tab="learning">
+                            <i class="fas fa-book"></i> Learning
+                        </li>
+                        <li class="settings-tab" data-tab="accessibility">
+                            <i class="fas fa-universal-access"></i> Accessibility
+                        </li>
+                        <li class="settings-tab" data-tab="billing">
+                            <i class="fas fa-credit-card"></i> Billing
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Settings Content -->
+                <div class="settings-content">
+                    <!-- Account Settings -->
+                    <div class="settings-tab-content active" id="account-settings">
+                        <div class="enhanced-card settings-card">
+                            <div class="section-header">
+                                <h3><i class="fas fa-user-shield"></i> Account Settings</h3>
+                                <button class="btn btn-primary btn-sm save-settings">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                            
+                            <div class="settings-form">
+                                <div class="form-section">
+                                    <h4>Login Information</h4>
+                                    <div class="form-group">
+                                        <label for="email">Email Address</label>
+                                        <input type="email" id="email" value="{{ user.email }}" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="current-password">Current Password</label>
+                                        <input type="password" id="current-password" placeholder="Enter current password" class="form-control">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="new-password">New Password</label>
+                                            <input type="password" id="new-password" placeholder="Enter new password" class="form-control">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirm-password">Confirm Password</label>
+                                            <input type="password" id="confirm-password" placeholder="Confirm new password" class="form-control">
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-secondary">Change Password</button>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4>Two-Factor Authentication</h4>
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Enable Two-Factor Authentication</h5>
+                                            <p>Add an extra layer of security to your account</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4>Account Management</h4>
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-download"></i> Download My Data
+                                    </button>
+                                    <button class="btn btn-danger mt-4">
+                                        <i class="fas fa-trash-alt"></i> Delete Account
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications Settings -->
+                    <div class="settings-tab-content" id="notifications-settings">
+                        <div class="enhanced-card settings-card">
+                            <div class="section-header">
+                                <h3><i class="fas fa-bell"></i> Notification Settings</h3>
+                                <button class="btn btn-primary btn-sm save-settings">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                            
+                            <div class="settings-form">
+                                <div class="form-section">
+                                    <h4>Email Notifications</h4>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Course Updates</h5>
+                                            <p>Receive notifications about updates to your courses</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Assignment Reminders</h5>
+                                            <p>Get reminders about upcoming assignments</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Weekly Progress Reports</h5>
+                                            <p>Receive weekly summaries of your learning progress</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>New Course Recommendations</h5>
+                                            <p>Get notifications about recommended courses</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4>Push Notifications</h4>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Enable Push Notifications</h5>
+                                            <p>Receive notifications in your browser</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Daily Study Reminders</h5>
+                                            <p>Get daily reminders to continue your learning</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4>Notification Schedule</h4>
+                                    <div class="form-group">
+                                        <label for="quiet-hours-start">Quiet Hours Start</label>
+                                        <select id="quiet-hours-start" class="form-control">
+                                            <option>8:00 PM</option>
+                                            <option>9:00 PM</option>
+                                            <option>10:00 PM</option>
+                                            <option>11:00 PM</option>
+                                            <option>12:00 AM</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="quiet-hours-end">Quiet Hours End</label>
+                                        <select id="quiet-hours-end" class="form-control">
+                                            <option>6:00 AM</option>
+                                            <option>7:00 AM</option>
+                                            <option>8:00 AM</option>
+                                            <option>9:00 AM</option>
+                                            <option>10:00 AM</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Privacy Settings -->
+                    <div class="settings-tab-content" id="privacy-settings">
+                        <div class="enhanced-card settings-card">
+                            <div class="section-header">
+                                <h3><i class="fas fa-lock"></i> Privacy Settings</h3>
+                                <button class="btn btn-primary btn-sm save-settings">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </div>
+                            
+                            <div class="settings-form">
+                                <div class="form-section">
+                                    <h4>Profile Privacy</h4>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Public Profile</h5>
+                                            <p>Allow other students to view your profile</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Show Learning Progress</h5>
+                                            <p>Allow others to see your course progress</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Show Achievements</h5>
+                                            <p>Show your earned achievements on your profile</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4>Data Usage</h4>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Personalized Learning</h5>
+                                            <p>Use your learning data to improve course recommendations</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Anonymous Analytics</h5>
+                                            <p>Share anonymous usage data to improve our platform</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <h4>Cookie Settings</h4>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Essential Cookies</h5>
+                                            <p>Required for basic website functionality</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked disabled>
+                                            <span class="toggle-slider disabled"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Performance Cookies</h5>
+                                            <p>Help us improve website performance</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Functional Cookies</h5>
+                                            <p>Enhance functionality and personalization</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="toggle-setting">
+                                        <div class="toggle-info">
+                                            <h5>Targeting Cookies</h5>
+                                            <p>Used for targeted advertising</p>
+                                        </div>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+        <!-- Learning Settings -->
+        <div class="settings-tab-content" id="learning-settings">
+            <div class="enhanced-card settings-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-book"></i> Learning Settings</h3>
+                    <button class="btn btn-primary btn-sm save-settings">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+                
+                <div class="settings-form">
+                    <div class="form-section">
+                        <h4>Learning Preferences</h4>
+                        
+                        <div class="toggle-setting">
+                            <div class="toggle-info">
+                                <h5>Adaptive Learning</h5>
+                                <p>Automatically adjust difficulty based on your performance</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        
+                        <div class="toggle-setting">
+                            <div class="toggle-info">
+                                <h5>Content Recommendations</h5>
+                                <p>Show personalized content recommendations</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>Career Path & Interests</h4>
+                        <div class="career-interest-summary">
+                            <div class="interest-profile">
+                                <h5>Your Current CS Career Path</h5>
+                                <div class="interest-badge">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>{{ user.career_goal|replace('_', ' ')|title if user.career_goal else "Not set" }}</span>
+                                </div>
+                                
+                                <div class="interest-high-scores">
+                                    <h6>Your Top Interest Areas:</h6>
+                                    <ul class="interest-list">
+                                        {% if user.algorithms_interest and user.algorithms_interest >= 4 %}
+                                        <li><i class="fas fa-sitemap"></i> Algorithms & Data Structures</li>
+                                        {% endif %}
+                                        {% if user.data_science_interest and user.data_science_interest >= 4 %}
+                                        <li><i class="fas fa-chart-bar"></i> Data Science & Analytics</li>
+                                        {% endif %}
+                                        {% if user.web_development_interest and user.web_development_interest >= 4 %}
+                                        <li><i class="fas fa-globe"></i> Web Development</li>
+                                        {% endif %}
+                                        {% if user.mobile_development_interest and user.mobile_development_interest >= 4 %}
+                                        <li><i class="fas fa-mobile-alt"></i> Mobile Development</li>
+                                        {% endif %}
+                                        {% if user.cybersecurity_interest and user.cybersecurity_interest >= 4 %}
+                                        <li><i class="fas fa-shield-alt"></i> Cybersecurity</li>
+                                        {% endif %}
+                                        {% if user.artificial_intelligence_interest and user.artificial_intelligence_interest >= 4 %}
+                                        <li><i class="fas fa-robot"></i> Artificial Intelligence</li>
+                                        {% endif %}
+                                        {% if user.game_development_interest and user.game_development_interest >= 4 %}
+                                        <li><i class="fas fa-gamepad"></i> Game Development</li>
+                                        {% endif %}
+                                        {% if user.systems_programming_interest and user.systems_programming_interest >= 4 %}
+                                        <li><i class="fas fa-microchip"></i> Systems Programming</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="retry-survey-card">
+                                <div class="retry-survey-header">
+                                    <i class="fas fa-sync-alt"></i>
+                                    <h5>Retry CS Interest Survey</h5>
+                                </div>
+                                <p>Your interests may have changed since your first assessment. Take the survey again to update your career path and learning recommendations.</p>
+                                <button onclick="showResetSurveyModal()" class="btn btn-gradient retry-survey-btn">
+                                    <i class="fas fa-redo"></i> Retake Survey
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h4>Course Display Settings</h4>
+                        <div class="form-group">
+                            <label for="course-display-mode">Default Course View</label>
+                            <select id="course-display-mode" class="form-control">
+                                <option value="grid">Grid View</option>
+                                <option value="list">List View</option>
+                                <option value="compact">Compact View</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="sort-courses-by">Sort Courses By</label>
+                            <select id="sort-courses-by" class="form-control">
+                                <option value="recent">Most Recent</option>
+                                <option value="name">Course Name</option>
+                                <option value="progress">Completion Progress</option>
+                                <option value="difficulty">Difficulty Level</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessibility Settings -->
+        <div class="settings-tab-content" id="accessibility-settings">
+            <!-- Accessibility settings content here -->
+        </div>
+
+        <!-- Billing Settings -->
+        <div class="settings-tab-content" id="billing-settings">
+            <!-- Billing settings content here -->
+        </div>
+    </div>
+</div>
+
+<!-- Reset Survey Modal -->
+<div id="resetSurveyModal" class="custom-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Reset Survey Confirmation</h3>
+            <button class="modal-close" onclick="closeResetSurveyModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>This will reset all your previous survey answers and you'll need to complete the survey again.</p>
+            <p>Your learning path and recommendations will be updated based on your new responses.</p>
+            <div class="modal-impacts">
+                <div class="impact-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Your career path may change</span>
+                </div>
+                <div class="impact-item">
+                    <i class="fas fa-map-signs"></i>
+                    <span>Learning recommendations will be recalculated</span>
+                </div>
+                <div class="impact-item">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>You'll need to answer all questions again</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeResetSurveyModal()">
+                Cancel
+            </button>
+            <button class="btn btn-danger" onclick="confirmResetSurvey()">
+                <i class="fas fa-redo"></i> Reset & Retake Survey
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Overlay -->
+<div id="modalOverlay" class="modal-overlay"></div>
+{% endblock %}
+    
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/account.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        // Toggle settings tabs
+            const tabs = document.querySelectorAll('.settings-tab');
+            const tabContents = document.querySelectorAll('.settings-tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                // Show the corresponding tab content
+                    const tabId = this.getAttribute('data-tab') + '-settings';
+                    document.getElementById(tabId).classList.add('active');
+                
+                // Close sidebar on mobile when a tab is clicked
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.querySelector('.sidebar');
+                    const overlay = document.querySelector('.menu-overlay');
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                    
+                    // Reset icon
+                    const menuToggle = document.querySelector('.mobile-menu-toggle');
+                    const icon = menuToggle.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        });
+        
+        // Make settings tabs scrollable horizontally on touch devices
+        const tabsList = document.querySelector('.settings-tabs');
+        if (tabsList) {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            
+            tabsList.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - tabsList.offsetLeft;
+                scrollLeft = tabsList.scrollLeft;
+            });
+            
+            tabsList.addEventListener('mouseleave', () => {
+                isDown = false;
+            });
+            
+            tabsList.addEventListener('mouseup', () => {
+                isDown = false;
+            });
+            
+            tabsList.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - tabsList.offsetLeft;
+                const walk = (x - startX) * 2;
+                tabsList.scrollLeft = scrollLeft - walk;
+            });
+        }
+    });
+    
+    // Modal functions for survey reset
+    function showResetSurveyModal() {
+        const modal = document.getElementById('resetSurveyModal');
+        const overlay = document.getElementById('modalOverlay');
+        
+        overlay.style.display = 'block';
+        modal.style.display = 'block';
+        
+        setTimeout(() => {
+            overlay.classList.add('active');
+            modal.classList.add('active');
+        }, 10);
+    }
+    
+    function closeResetSurveyModal() {
+        const modal = document.getElementById('resetSurveyModal');
+        const overlay = document.getElementById('modalOverlay');
+        
+        modal.classList.remove('active');
+        overlay.classList.remove('active');
+        
+        setTimeout(() => {
+            modal.style.display = 'none';
+            overlay.style.display = 'none';
+        }, 300);
+    }
+    
+    function confirmResetSurvey() {
+        // Animate the reset button
+        const resetBtn = document.querySelector('.modal-footer .btn-danger');
+        resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+        resetBtn.disabled = true;
+        
+        // Redirect to reset survey route
+        window.location.href = "{{ url_for('views.reset_survey') }}";
+    }
+    </script>
+{% endblock %} 

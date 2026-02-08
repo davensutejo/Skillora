@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Skillora - Library of resources">
+    <meta name="theme-color" content="#6200ea">
+    <title>Skillora - Library</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern.css') }}">
+    
+    <!-- Chart.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <a href="{{ url_for('views.home') }}" class="sidebar-logo">
+                <div class="logo-circle">
+                    <div class="logo-letter">S</div>
+                </div>
+                <span class="logo-text">Skillora</span>
+            </a>
+            
+            <div class="sidebar-menu">
+                <p class="menu-category">Main</p>
+                <a href="{{ url_for('views.home') }}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('views.learning_path') }}" class="menu-item">
+                    <i class="fas fa-graduation-cap"></i>
+                    Learning Path
+                </a>
+                <a href="{{ url_for('views.my_courses') }}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    My Courses
+                </a>
+                <a href="{{ url_for('views.schedule') }}" class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    Schedule
+                </a>
+                
+                <p class="menu-category">Resources</p>
+                <a href="{{ url_for('views.library') }}" class="menu-item active">
+                    <i class="fas fa-book-open"></i>
+                    Library
+                </a>
+                <a href="{{ url_for('views.tutors') }}" class="menu-item">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    AI Tutor
+                </a>
+                <a href="{{ url_for('views.progress') }}" class="menu-item">
+                    <i class="fas fa-chart-line"></i>
+                    Progress
+                </a>
+                
+                <p class="menu-category">Account</p>
+                <a href="{{ url_for('views.profile') }}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    Profile
+                </a>
+                <a href="{{ url_for('views.settings') }}" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+                <a href="{{ url_for('views.help') }}" class="menu-item">
+                    <i class="fas fa-question-circle"></i>
+                    Help
+                </a>
+            </div>
+            
+            <div class="user-profile">
+                <div class="user-avatar">
+                    {{ user.first_name[0] }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.first_name }}</div>
+                    <div class="user-email">{{ user.email }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
+            
+            <!-- Page Header -->
+            <div class="dashboard-header">
+                <div class="welcome-text">
+                    <h1>Library</h1>
+                    <p>Explore books, courses, and learning materials</p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-container">
+                        <input type="text" placeholder="Search library..." class="search-input">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-filter"></i>
+                        <span class="tooltip-text">Filter results</span>
+                    </button>
+                    <button class="action-btn tooltip">
+                        <i class="fas fa-bookmark"></i>
+                        <span class="tooltip-text">Saved items</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Library Categories -->
+            <div class="library-categories enhanced-card">
+                <div class="category-navigation">
+                    <button class="category-tab active" data-category="all">
+                        <i class="fas fa-th-large"></i>
+                        <span>All</span>
+                    </button>
+                    <button class="category-tab" data-category="books">
+                        <i class="fas fa-book"></i>
+                        <span>Books</span>
+                    </button>
+                    <button class="category-tab" data-category="courses">
+                        <i class="fas fa-laptop-code"></i>
+                        <span>Courses</span>
+                    </button>
+                    <button class="category-tab" data-category="videos">
+                        <i class="fas fa-video"></i>
+                        <span>Videos</span>
+                    </button>
+                    <button class="category-tab" data-category="articles">
+                        <i class="fas fa-newspaper"></i>
+                        <span>Articles</span>
+                    </button>
+                    <button class="category-tab" data-category="podcasts">
+                        <i class="fas fa-podcast"></i>
+                        <span>Podcasts</span>
+                    </button>
+                    <button class="category-tab" data-category="tools">
+                        <i class="fas fa-tools"></i>
+                        <span>Tools</span>
+                    </button>
+                </div>
+                
+                <div class="category-filters">
+                    <div class="filter-group">
+                        <label>Topics</label>
+                        <select class="filter-select">
+                            <option value="all">All Topics</option>
+                            <option value="programming">Programming</option>
+                            <option value="data-science">Data Science</option>
+                            <option value="design">Design</option>
+                            <option value="business">Business</option>
+                            <option value="marketing">Marketing</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Skill Level</label>
+                        <select class="filter-select">
+                            <option value="all">All Levels</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Duration</label>
+                        <select class="filter-select">
+                            <option value="all">Any Duration</option>
+                            <option value="short">Under 1 hour</option>
+                            <option value="medium">1-5 hours</option>
+                            <option value="long">5+ hours</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Rating</label>
+                        <select class="filter-select">
+                            <option value="all">Any Rating</option>
+                            <option value="4+">4+ Stars</option>
+                            <option value="3+">3+ Stars</option>
+                            <option value="2+">2+ Stars</option>
+                        </select>
+                    </div>
+                    
+                    <button class="filter-apply-btn">
+                        <i class="fas fa-check"></i>
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Featured Section -->
+            <div class="section-header">
+                <h2 class="section-title">Featured Resources</h2>
+                <button class="btn btn-sm btn-outlined">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+            
+            <div class="featured-resources">
+                <div class="featured-slider">
+                    <div class="featured-item">
+                        <div class="featured-resource-image" style="background-image: url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97');">
+                            <div class="resource-type book">
+                                <i class="fas fa-book"></i>
+                                <span>Book</span>
+                            </div>
+                            <div class="resource-actions">
+                                <button class="action-btn-sm">
+                                    <i class="fas fa-bookmark"></i>
+                                </button>
+                                <button class="action-btn-sm">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="featured-resource-content">
+                            <div class="resource-category">Programming</div>
+                            <h3 class="resource-title">Clean Code: A Handbook of Agile Software Craftsmanship</h3>
+                            <div class="resource-author">By Robert C. Martin</div>
+                            <div class="resource-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                                <span>4.7 (1,285 reviews)</span>
+                            </div>
+                            <p class="resource-description">
+                                Even bad code can function. But if code isn't clean, it can bring a development organization to its knees. This book is a must for any developer, software engineer, project manager, or team lead.
+                            </p>
+                            <div class="resource-cta">
+                                <button class="btn btn-primary">View Details</button>
+                                <button class="btn btn-secondary">Preview</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-controls">
+                        <button class="slider-nav prev">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <div class="slider-dots">
+                            <span class="dot active"></span>
+                            <span class="dot"></span>
+                            <span class="dot"></span>
+                        </div>
+                        <button class="slider-nav next">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recently Added -->
+            <div class="section-header">
+                <h2 class="section-title">Recently Added</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="resources-grid">
+                <!-- Resource Card 1 -->
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1581291518857-4e27b48ff24e');">
+                        <div class="resource-type course">
+                            <i class="fas fa-laptop-code"></i>
+                            <span>Course</span>
+                        </div>
+                        <div class="resource-actions">
+                            <button class="action-btn-sm">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-category">Data Science</div>
+                        <h3 class="resource-title">Machine Learning Fundamentals: From Theory to Practice</h3>
+                        <div class="resource-metadata">
+                            <span class="resource-author">By Dr. Sarah Johnson</span>
+                            <span class="resource-duration">
+                                <i class="fas fa-clock"></i> 12 hours
+                            </span>
+                        </div>
+                        <div class="resource-rating">
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                            <span>4.0</span>
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-students">
+                                <i class="fas fa-user-graduate"></i> 2,850 enrolled
+                            </span>
+                            <button class="btn btn-sm btn-primary">Enroll</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Card 2 -->
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1571171637578-41bc2dd41cd2');">
+                        <div class="resource-type article">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Article</span>
+                        </div>
+                        <div class="resource-actions">
+                            <button class="action-btn-sm">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-category">Web Development</div>
+                        <h3 class="resource-title">The Ultimate Guide to Modern JavaScript Features</h3>
+                        <div class="resource-metadata">
+                            <span class="resource-author">By James Wilson</span>
+                            <span class="resource-read-time">
+                                <i class="fas fa-book-reader"></i> 15 min read
+                            </span>
+                        </div>
+                        <div class="resource-tags">
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">ES6+</span>
+                            <span class="tag">Web Dev</span>
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-date">
+                                <i class="fas fa-calendar-alt"></i> May 15, 2025
+                            </span>
+                            <button class="btn btn-sm btn-primary">Read</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Card 3 -->
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1551434678-e076c223a692');">
+                        <div class="resource-type video">
+                            <i class="fas fa-video"></i>
+                            <span>Video</span>
+                        </div>
+                        <div class="resource-actions">
+                            <button class="action-btn-sm">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-category">UI/UX Design</div>
+                        <h3 class="resource-title">Designing User-Centered Interfaces: Principles and Practices</h3>
+                        <div class="resource-metadata">
+                            <span class="resource-author">By Emma Rodriguez</span>
+                            <span class="resource-duration">
+                                <i class="fas fa-clock"></i> 45 min
+                            </span>
+                        </div>
+                        <div class="resource-tags">
+                            <span class="tag">UI Design</span>
+                            <span class="tag">UX</span>
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-views">
+                                <i class="fas fa-eye"></i> 12.4K views
+                            </span>
+                            <button class="btn btn-sm btn-primary">Watch</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resource Card 4 -->
+                <div class="resource-card">
+                    <div class="resource-image" style="background-image: url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3');">
+                        <div class="resource-type podcast">
+                            <i class="fas fa-podcast"></i>
+                            <span>Podcast</span>
+                        </div>
+                        <div class="resource-actions">
+                            <button class="action-btn-sm">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <div class="resource-category">Career Development</div>
+                        <h3 class="resource-title">Tech Career Insights: Navigating the Industry in 2025</h3>
+                        <div class="resource-metadata">
+                            <span class="resource-author">By Tech Talks Network</span>
+                            <span class="resource-duration">
+                                <i class="fas fa-clock"></i> 52 min
+                            </span>
+                        </div>
+                        <div class="resource-tags">
+                            <span class="tag">Career</span>
+                            <span class="tag">Tech Industry</span>
+                        </div>
+                        <div class="resource-footer">
+                            <span class="resource-episode">
+                                <i class="fas fa-list-ol"></i> Episode 45
+                            </span>
+                            <button class="btn btn-sm btn-primary">Listen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Popular Books -->
+            <div class="section-header">
+                <h2 class="section-title">Popular Books</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="books-showcase">
+                <div class="book-item">
+                    <div class="book-cover" style="background-image: url('https://images.unsplash.com/photo-1532012197267-da84d127e765');">
+                        <div class="book-ribbon bestseller">Bestseller</div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">The Pragmatic Programmer</h3>
+                        <div class="book-author">By Andrew Hunt & David Thomas</div>
+                        <div class="book-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>4.8</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="book-item">
+                    <div class="book-cover" style="background-image: url('https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c');">
+                        <div class="book-ribbon new">New</div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">Design Patterns</h3>
+                        <div class="book-author">By Erich Gamma et al.</div>
+                        <div class="book-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <span>4.6</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="book-item">
+                    <div class="book-cover" style="background-image: url('https://images.unsplash.com/photo-1531988042231-d39a9cc12a9a');">
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">Algorithms to Live By</h3>
+                        <div class="book-author">By Brian Christian & Tom Griffiths</div>
+                        <div class="book-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <span>4.5</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="book-item">
+                    <div class="book-cover" style="background-image: url('https://images.unsplash.com/photo-1553729459-efe14ef6055d');">
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">Deep Learning</h3>
+                        <div class="book-author">By Ian Goodfellow et al.</div>
+                        <div class="book-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span>4.9</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="book-item">
+                    <div class="book-cover" style="background-image: url('https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8');">
+                        <div class="book-ribbon trending">Trending</div>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">Atomic Habits</h3>
+                        <div class="book-author">By James Clear</div>
+                        <div class="book-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <span>5.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Collections -->
+            <div class="section-header">
+                <h2 class="section-title">Learning Collections</h2>
+                <a href="#" class="view-all">View All</a>
+            </div>
+            
+            <div class="collections-grid">
+                <div class="collection-card">
+                    <div class="collection-header">
+                        <div class="collection-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3 class="collection-title">Full-Stack Web Development</h3>
+                    </div>
+                    <div class="collection-details">
+                        <p>A comprehensive collection of resources to master front-end and back-end web development.</p>
+                        <div class="collection-stats">
+                            <div class="stat">
+                                <i class="fas fa-book"></i>
+                                <span>5 Books</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-laptop-code"></i>
+                                <span>8 Courses</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-video"></i>
+                                <span>12 Videos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-footer">
+                        <button class="btn btn-primary btn-block">View Collection</button>
+                    </div>
+                </div>
+                
+                <div class="collection-card">
+                    <div class="collection-header">
+                        <div class="collection-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="collection-title">Data Science & Analytics</h3>
+                    </div>
+                    <div class="collection-details">
+                        <p>Essential resources for aspiring data scientists, from statistics to machine learning algorithms.</p>
+                        <div class="collection-stats">
+                            <div class="stat">
+                                <i class="fas fa-book"></i>
+                                <span>7 Books</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-laptop-code"></i>
+                                <span>6 Courses</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-video"></i>
+                                <span>9 Videos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-footer">
+                        <button class="btn btn-primary btn-block">View Collection</button>
+                    </div>
+                </div>
+                
+                <div class="collection-card">
+                    <div class="collection-header">
+                        <div class="collection-icon">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <h3 class="collection-title">UI/UX Design Fundamentals</h3>
+                    </div>
+                    <div class="collection-details">
+                        <p>Learn user interface and experience design principles with these carefully curated resources.</p>
+                        <div class="collection-stats">
+                            <div class="stat">
+                                <i class="fas fa-book"></i>
+                                <span>4 Books</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-laptop-code"></i>
+                                <span>5 Courses</span>
+                            </div>
+                            <div class="stat">
+                                <i class="fas fa-video"></i>
+                                <span>14 Videos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-footer">
+                        <button class="btn btn-primary btn-block">View Collection</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category Tabs
+        const categoryTabs = document.querySelectorAll('.category-tab');
+        categoryTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Here you would filter resources by category
+                const category = this.getAttribute('data-category');
+                console.log(`Filtering by category: ${category}`);
+            });
+        });
+        
+        // Featured Slider
+        const sliderDots = document.querySelectorAll('.slider-dots .dot');
+        const prevButton = document.querySelector('.slider-nav.prev');
+        const nextButton = document.querySelector('.slider-nav.next');
+        let currentSlide = 0;
+        const totalSlides = sliderDots.length;
+        
+        function updateSlider() {
+            sliderDots.forEach(dot => dot.classList.remove('active'));
+            sliderDots[currentSlide].classList.add('active');
+            
+            // In a real implementation, you would slide to the current slide
+            console.log(`Showing slide ${currentSlide + 1} of ${totalSlides}`);
+        }
+        
+        prevButton.addEventListener('click', function() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlider();
+        });
+        
+        nextButton.addEventListener('click', function() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlider();
+        });
+        
+        sliderDots.forEach((dot, index) => {
+            dot.addEventListener('click', function() {
+                currentSlide = index;
+                updateSlider();
+            });
+        });
+        
+        // Resource Bookmarks
+        const bookmarkButtons = document.querySelectorAll('.action-btn-sm');
+        bookmarkButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.replace('far', 'fas');
+                    
+                    // Show a notification
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success';
+                    alert.textContent = 'Item added to your bookmarks';
+                    document.querySelector('.flash-messages').appendChild(alert);
+                    
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 3000);
+                } else {
+                    icon.classList.replace('fas', 'far');
+                    
+                    // Show a notification
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-info';
+                    alert.textContent = 'Item removed from your bookmarks';
+                    document.querySelector('.flash-messages').appendChild(alert);
+                    
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 3000);
+                }
+            });
+        });
+        
+        // Filter Apply Button
+        const filterApplyBtn = document.querySelector('.filter-apply-btn');
+        filterApplyBtn.addEventListener('click', function() {
+            const filterSelects = document.querySelectorAll('.filter-select');
+            const filters = {};
+            
+            filterSelects.forEach(select => {
+                const label = select.previousElementSibling.textContent;
+                filters[label] = select.value;
+            });
+            
+            console.log('Applied filters:', filters);
+            
+            // Show a notification
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = 'Filters applied successfully';
+            document.querySelector('.flash-messages').appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        });
+        
+        // Toggle sidebar on mobile
+        const sidebar = document.querySelector('.sidebar');
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        
+        if (menuToggle) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+                
+                // Toggle between hamburger and close icon
+                const icon = this.querySelector('i');
+                if (sidebar.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+                
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            });
+        }
+        
+        // Handle responsive sidebar on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+                document.body.style.overflow = '';
+                
+                // Reset icon
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+        
+        // Animate elements on scroll
+        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            gsap.from('.resource-card', {
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                scrollTrigger: {
+                    trigger: '.resources-grid',
+                    start: 'top 80%',
+                }
+            });
+            
+            gsap.from('.book-item', {
+                x: -50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                scrollTrigger: {
+                    trigger: '.books-showcase',
+                    start: 'top 80%',
+                }
+            });
+            
+            gsap.from('.collection-card', {
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                scrollTrigger: {
+                    trigger: '.collections-grid',
+                    start: 'top 80%',
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html> 

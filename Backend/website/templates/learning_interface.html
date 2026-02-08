@@ -1,0 +1,1668 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} - Learning Interface{% endblock %}
+
+{% block additional_css %}
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<style>
+    /* Learning Interface Layout */
+    .learning-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    /* Header */
+    .learning-header {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 1.5rem;
+        background: var(--card-bg);
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+    }
+
+    .learning-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.75rem;
+    }
+
+    .course-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .learning-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    /* Main content area */
+    .learning-content {
+        display: flex;
+        flex: 1;
+        gap: 1.5rem;
+        overflow: hidden;
+        height: calc(100vh - 5rem);
+    }
+
+    /* Video section */
+    .video-container {
+        flex: 1;
+        min-width: 0;
+        background: var(--card-bg);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .video-wrapper {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+    }
+
+    .video-wrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+
+    .video-content {
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .video-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+
+    .video-description {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    /* Modules sidebar */
+    .modules-sidebar {
+        width: 320px;
+        background: var(--card-bg);
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .modules-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modules-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .modules-progress {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .modules-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem 0;
+    }
+
+    .module-item {
+        padding: 0.75rem 1.5rem;
+        border-left: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .module-item:hover {
+        background: var(--hover-bg);
+    }
+
+    .module-item.active {
+        background: var(--accent-light);
+        border-left-color: var(--accent);
+    }
+
+    .module-item.completed {
+        border-left-color: var(--success);
+    }
+
+    .module-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        background: var(--accent);
+        color: white;
+    }
+
+    .module-item.completed .module-icon {
+        background: var(--success);
+    }
+
+    .module-item.quiz .module-icon {
+        background: var(--warning);
+    }
+
+    .module-details {
+        flex: 1;
+    }
+
+    .module-name {
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .module-type {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .module-duration {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-left: auto;
+        padding-left: 0.5rem;
+    }
+
+    /* Quiz section */
+    .quiz-container {
+        padding: 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-height: 100%;
+    }
+
+    #quiz-container {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .quiz-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        position: sticky;
+        top: 0;
+        background: var(--card-bg);
+        padding: 0.5rem 0;
+        z-index: 5;
+    }
+
+    .quiz-description {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    #quiz-form {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        overflow-y: auto;
+        flex: 1;
+    }
+
+    .quiz-question {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--hover-bg);
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .question-text {
+        font-size: 1.125rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+    }
+
+    .question-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .option {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: var(--input-bg);
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .option:hover {
+        background: var(--hover-bg);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .option input {
+        margin-right: 0.75rem;
+    }
+
+    .fill-blank {
+        margin-top: 1rem;
+    }
+
+    .fill-blank-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        background: var(--input-bg);
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .fill-blank-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+    }
+
+    .quiz-actions {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: flex-end;
+        position: sticky;
+        bottom: 0;
+        background: var(--card-bg);
+        padding: 1rem 0;
+        z-index: 5;
+    }
+
+    /* Breadcrumbs */
+    .breadcrumbs-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .breadcrumbs {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumbs a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .breadcrumbs a:hover {
+        color: var(--accent);
+    }
+
+    .breadcrumb-separator {
+        margin: 0 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .current-module {
+        font-weight: 600;
+        color: var(--text-primary);
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .module-counter {
+        font-weight: 500;
+        color: var(--text-secondary);
+        padding: 0.25rem 0.75rem;
+        background: var(--hover-bg);
+        border-radius: 1rem;
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        .learning-content {
+            flex-direction: column;
+        }
+
+        .modules-sidebar {
+            width: 100%;
+        }
+    }
+
+    /* Course Map */
+    .course-map {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background-color: var(--hover-bg);
+        border-radius: 3px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(to right, var(--accent), var(--accent-light));
+        border-radius: 3px;
+        transition: width 0.3s ease;
+    }
+
+    .course-map-modules {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .map-module-indicator {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.7rem;
+        color: white;
+        position: relative;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .map-module-indicator:hover {
+        transform: scale(1.15);
+    }
+
+    .map-module-indicator.video {
+        background-color: var(--accent);
+    }
+
+    .map-module-indicator.quiz {
+        background-color: var(--warning);
+    }
+
+    .map-module-indicator.completed {
+        background-color: var(--success);
+    }
+
+    .map-module-indicator.current {
+        box-shadow: 0 0 0 3px var(--accent-light);
+        transform: scale(1.1);
+    }
+
+    .map-module-indicator.current:hover {
+        transform: scale(1.2);
+    }
+
+    /* Custom Plyr Styles */
+    .plyr {
+        --plyr-color-main: var(--accent);
+        --plyr-video-control-color: #fff;
+        --plyr-video-control-color-hover: var(--accent-light);
+        --plyr-video-control-background-hover: rgba(0, 0, 0, 0.5);
+        --plyr-audio-control-background-hover: rgba(0, 0, 0, 0.5);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-player-container {
+        position: relative;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-bottom: 10px;
+        height: 0;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    }
+    
+    #skillora-player {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .plyr__control--overlaid {
+        background: var(--accent) !important;
+    }
+    
+    .plyr--full-ui input[type=range] {
+        color: var(--accent) !important;
+    }
+    
+    .plyr__menu__container {
+        background: var(--card-bg) !important;
+        color: var(--text-primary) !important;
+    }
+    
+    .plyr__menu__container .plyr__control {
+        color: var(--text-primary) !important;
+    }
+
+    .video-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        margin-top: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .video-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .video-action-btn {
+        border: none;
+        background: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .video-action-btn:hover {
+        background: var(--hover-bg);
+        color: var(--accent);
+    }
+
+    .module-badge {
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 4px 10px;
+        background-color: var(--accent-light);
+        color: var(--accent);
+        border-radius: 15px;
+    }
+
+    /* Notes Panel */
+    .notes-panel {
+        position: absolute;
+        right: -420px;
+        top: 0;
+        width: 380px;
+        height: 100%;
+        background: var(--card-bg);
+        box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        border-radius: 0 0 0 12px;
+        overflow: hidden;
+    }
+    
+    .notes-panel.active {
+        right: 0;
+    }
+    
+    .notes-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(to right, var(--accent-light), var(--card-bg));
+    }
+    
+    .notes-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .notes-header h3 i {
+        font-size: 1rem;
+    }
+    
+    .close-notes-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-secondary);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .close-notes-btn:hover {
+        background: rgba(0, 0, 0, 0.1);
+        color: var(--accent);
+    }
+    
+    .notes-toolbar {
+        padding: 10px 15px;
+        display: flex;
+        gap: 5px;
+        border-bottom: 1px solid var(--border);
+        background: var(--hover-bg);
+    }
+
+    .notes-toolbar-btn {
+        border: none;
+        background: none;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .notes-toolbar-btn:hover {
+        background: rgba(0, 0, 0, 0.08);
+        color: var(--accent);
+    }
+
+    .notes-toolbar-btn.active {
+        background: var(--accent-light);
+        color: var(--accent);
+    }
+
+    .notes-toolbar-divider {
+        width: 1px;
+        height: 24px;
+        background: var(--border);
+        margin: 0 5px;
+    }
+
+    .notes-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .notes-textarea {
+        flex: 1;
+        padding: 20px;
+        border: none;
+        resize: none;
+        background: var(--card-bg);
+        color: var(--text-primary);
+        font-family: inherit;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        overflow-y: auto;
+    }
+    
+    .notes-textarea:focus {
+        outline: none;
+    }
+
+    .notes-textarea::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+    
+    .notes-timestamp-btn {
+        position: absolute;
+        right: 20px;
+        top: 80px;
+        border: none;
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: 6px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        z-index: 10;
+    }
+
+    .notes-timestamp-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .notes-actions {
+        padding: 15px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--hover-bg);
+    }
+
+    .notes-meta {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .word-count {
+        font-weight: 500;
+    }
+
+    .notes-save-btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .notes-save-btn:hover {
+        background: var(--accent-dark, #4e00c2);
+        transform: translateY(-1px);
+    }
+
+    .notes-save-btn:active {
+        transform: translateY(1px);
+    }
+
+    .notes-save-btn i {
+        font-size: 0.9rem;
+    }
+
+    .timestamp-tag {
+        display: inline-block;
+        background: var(--accent-light);
+        color: var(--accent);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+    }
+
+    .timestamp-tag:hover {
+        background: var(--accent);
+        color: white;
+    }
+    
+    .notes-tabs {
+        display: flex;
+        background: var(--hover-bg);
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .notes-tab {
+        flex: 1;
+        padding: 12px 5px;
+        text-align: center;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .notes-tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        background: var(--card-bg);
+    }
+    
+    .notes-tab:hover:not(.active) {
+        background: rgba(0, 0, 0, 0.03);
+        color: var(--text-primary);
+    }
+
+    /* Toast Message */
+    .toast-message {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--accent);
+        color: white;
+        padding: 12px 25px;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .toast-message.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -10px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="learning-container">
+    <!-- Learning Interface Header -->
+    <div class="learning-header">
+        <div class="learning-header-top">
+            <h1 class="course-title">{{ course.title }}</h1>
+            <div class="learning-actions">
+                <a href="{{ url_for('views.my_courses') }}" class="btn btn-outline">
+                    <i class="fas fa-arrow-left"></i> Back to Courses
+                </a>
+            </div>
+        </div>
+        
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs-container">
+            <div class="breadcrumbs">
+                <a href="{{ url_for('views.home') }}">Dashboard</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="{{ url_for('views.my_courses') }}">My Courses</a>
+                <span class="breadcrumb-separator">›</span>
+                <a href="{{ url_for('views.learning_interface', course_id=course.id, module_id=modules[0].id) }}">{{ course.title }}</a>
+                <span class="breadcrumb-separator">›</span>
+                <span class="current-module">{{ current_module.title }}</span>
+            </div>
+            <div class="module-counter">
+                Module {{ current_module.order }} of {{ modules|length }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Learning Area -->
+    <div class="learning-content">
+        <!-- Video Area (Left Side) -->
+        <div class="video-container">
+            {% if current_module.quiz %}
+                <div class="quiz-container">
+                    <h2 class="quiz-title">{{ current_module.quiz.title }}</h2>
+                    <div id="quiz-container" data-quiz-id="{{ current_module.quiz.id }}">
+                        <p>Loading quiz questions...</p>
+                    </div>
+                </div>
+            {% elif current_module.content_type == 'video' %}
+                {% if current_module.has_manim_video() %}
+                    <div class="video-player-container">
+                        <video id="skillora-player" class="video-js" controls preload="auto" width="100%" height="100%">
+                            <source src="{{ current_module.get_video_url() }}" type="video/mp4">
+                            <p class="vjs-no-js">
+                                To view this video please enable JavaScript, and consider upgrading to a
+                                web browser that supports HTML5 video.
+                            </p>
+                        </video>
+                    </div>
+                    
+                    <!-- Video Controls and Actions -->
+                    <div class="video-controls">
+                        <div class="video-info">
+                            <div class="module-badge">Module {{ current_module.order }}</div>
+                            <div class="video-label">Custom Manim Animation</div>
+                        </div>
+                        <div class="video-actions">
+                            <button class="video-action-btn" id="takeNotesBtn" title="Take Notes">
+                                <i class="fas fa-sticky-note"></i>
+                            </button>
+                            <button class="video-action-btn" id="bookmarkVideoBtn" title="Bookmark">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            <button class="video-action-btn" id="shareVideoBtn" title="Share">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            <button class="video-action-btn" id="downloadResourcesBtn" title="Resources">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% elif current_module.get_youtube_links() %}
+                    <div class="video-player-container">
+                        {% set youtube_url = current_module.get_youtube_links()[0] %}
+                        {% set youtube_id = youtube_url.split('v=')[1].split('&')[0] if 'v=' in youtube_url else youtube_url.split('/')[-1] %}
+                        
+                        <div id="skillora-player" data-plyr-provider="youtube" data-plyr-embed-id="{{ youtube_id }}"></div>
+                    </div>
+                    
+                    <!-- Video Controls and Actions -->
+                    <div class="video-controls">
+                        <div class="video-info">
+                            <div class="module-badge">Module {{ current_module.order }}</div>
+                            <div class="video-label">YouTube Video</div>
+                        </div>
+                        <div class="video-actions">
+                            <button class="video-action-btn" id="takeNotesBtn" title="Take Notes">
+                                <i class="fas fa-sticky-note"></i>
+                            </button>
+                            <button class="video-action-btn" id="bookmarkVideoBtn" title="Bookmark">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                            <button class="video-action-btn" id="shareVideoBtn" title="Share">
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            <button class="video-action-btn" id="downloadResourcesBtn" title="Resources">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="video-content">
+                        <div class="placeholder-message">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading learning content for this module. This may take a moment...</p>
+                            <p class="small text-muted">If content doesn't appear after a few moments, please refresh the page.</p>
+                            <button class="btn btn-primary load-videos-btn mt-3" data-module-id="{{ current_module.id }}">
+                                <i class="fas fa-redo"></i> Generate Custom Video
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="video-content">
+                    <h2 class="video-title">{{ current_module.title }}</h2>
+                    <div class="video-description">{{ current_module.description }}</div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Modules Sidebar (Right Side) -->
+        <div class="modules-sidebar">
+            <div class="modules-header">
+                <h3 class="modules-title">Course Content</h3>
+                <div class="modules-progress">{{ progress_percentage }}% complete</div>
+            </div>
+
+            <!-- Visual Course Map -->
+            <div class="course-map">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" data-progress="{{ progress_percentage }}"></div>
+                </div>
+                <div class="course-map-modules">
+                    {% for module in modules %}
+                        {% set is_completed = module.id in user_progress and user_progress[module.id].is_completed %}
+                        {% set is_current = module.id == current_module.id %}
+                        <div class="map-module-indicator{% if is_completed %} completed{% elif is_current %} current{% endif %}{% if module.content_type == 'quiz' or module.quiz %} quiz{% else %} video{% endif %}" 
+                             data-module-id="{{ module.id }}" 
+                             data-course-id="{{ course.id }}"
+                             data-href="{{ url_for('views.learning_interface', course_id=course.id, module_id=module.id) }}"
+                             title="{{ module.title }}">
+                            {% if is_completed %}
+                                <i class="fas fa-check"></i>
+                            {% elif module.content_type == 'quiz' or module.quiz %}
+                                <i class="fas fa-question"></i>
+                            {% else %}
+                                <i class="fas fa-play"></i>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="modules-list">
+                {% for module in modules %}
+                    {% set is_completed = module.id in user_progress and user_progress[module.id].is_completed %}
+                    {% set is_current = module.id == current_module.id %}
+                    <div class="module-item{% if is_current %} active{% endif %}{% if is_completed %} completed{% endif %}{% if module.quiz %} quiz{% endif %}" 
+                         data-module-id="{{ module.id }}"
+                         data-course-id="{{ course.id }}"
+                         data-href="{{ url_for('views.learning_interface', course_id=course.id, module_id=module.id) }}">
+                        
+                        <div class="module-icon">
+                            {% if is_completed %}
+                                <i class="fas fa-check"></i>
+                            {% elif module.content_type == 'quiz' or module.quiz %}
+                                <i class="fas fa-question"></i>
+                            {% else %}
+                                <i class="fas fa-play"></i>
+                            {% endif %}
+                        </div>
+                        <div class="module-details">
+                            <div class="module-name">{{ module.title }}</div>
+                            <div class="module-type">
+                                {% if module.content_type == 'quiz' or module.quiz %}
+                                    Quiz
+                                {% elif module.content_type == 'video' %}
+                                    Video
+                                {% else %}
+                                    Content
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="module-duration">
+                            {% if module.estimated_time_minutes %}
+                                {{ module.estimated_time_minutes }} min
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we have a YouTube player or HTML5 video
+    const youtubePlayer = document.querySelector('[data-plyr-provider="youtube"]');
+    const htmlVideoPlayer = document.querySelector('video#skillora-player');
+    
+    let player;
+    
+    if (youtubePlayer) {
+        // Initialize Plyr.js for YouTube
+        player = new Plyr('#skillora-player', {
+            controls: [
+                'play-large', 'play', 'progress', 'current-time', 'mute', 
+                'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'
+            ],
+            settings: ['captions', 'quality', 'speed'],
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+            resetOnEnd: false,
+            keyboard: { focused: true, global: true },
+            tooltips: { controls: true, seek: true },
+            blankVideo: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+            autoplay: false
+        });
+    } else if (htmlVideoPlayer) {
+        // Initialize Plyr.js for HTML5 video
+        player = new Plyr('#skillora-player', {
+            controls: [
+                'play-large', 'play', 'progress', 'current-time', 'mute', 
+                'volume', 'captions', 'settings', 'pip', 'fullscreen'
+            ],
+            settings: ['captions', 'quality', 'speed'],
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+            resetOnEnd: false,
+            keyboard: { focused: true, global: true },
+            tooltips: { controls: true, seek: true },
+            autoplay: false
+        });
+    }
+    
+    // If we have a player initialized, set up event handlers
+    if (player) {
+        // Add event listeners for custom player functionality
+        player.on('ready', () => {
+            console.log('Player is ready');
+            // You can add custom functionality here
+        });
+        
+        player.on('ended', () => {
+            console.log('Video ended');
+            // Auto-navigate to next module
+            const currentModuleElement = document.querySelector('.module-item.active');
+            const nextModuleElement = currentModuleElement.nextElementSibling;
+            if (nextModuleElement) {
+                const href = nextModuleElement.getAttribute('data-href');
+                if (href) {
+                    // Show completed status on current module
+                    currentModuleElement.classList.add('completed');
+                    
+                    // Navigate with a delay
+                    setTimeout(() => {
+                        window.location.href = href;
+                    }, 1500);
+                }
+            }
+        });
+    }
+
+    // Set progress bar width from data attribute
+    const progressBar = document.querySelector('.progress-bar');
+    if (progressBar) {
+        const progressValue = progressBar.getAttribute('data-progress');
+        progressBar.style.width = progressValue + '%';
+    }
+
+    // Add click event listener to all module items
+    document.querySelectorAll('.module-item').forEach(moduleItem => {
+        moduleItem.addEventListener('click', function() {
+            const href = this.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
+        });
+    });
+
+    // Load Quiz Questions
+    const quizContainer = document.getElementById('quiz-container');
+    if (quizContainer) {
+        const quizId = quizContainer.dataset.quizId;
+        loadQuizQuestions(quizId);
+    }
+
+    // Function to load quiz questions
+    function loadQuizQuestions(quizId) {
+        fetch(`/get_quiz/${quizId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                renderQuiz(data.quiz, data.questions);
+            } else {
+                quizContainer.innerHTML = '<p>Error loading quiz: ' + data.error + '</p>';
+            }
+        })
+        .catch(error => {
+            quizContainer.innerHTML = '<p>Error loading quiz. Please try again later.</p>';
+            console.error('Error loading quiz:', error);
+        });
+    }
+
+    // Function to render quiz questions
+    function renderQuiz(quiz, questions) {
+        let html = `
+            <form id="quiz-form">
+                <div class="quiz-description">${quiz.description || ''}</div>
+        `;
+
+        questions.forEach((question, index) => {
+            html += `
+                <div class="quiz-question" data-question-id="${question.id}">
+                    <h3 class="question-text">${question.question_text}</h3>
+            `;
+
+            if (question.question_type === 'multiple_choice') {
+                const options = JSON.parse(question.options);
+                html += '<div class="question-options">';
+                
+                options.forEach((option, optIndex) => {
+                    const optionId = `q${question.id}_option${optIndex}`;
+                    html += `
+                        <div class="option">
+                            <input type="radio" name="q${question.id}" id="${optionId}" value="${option}">
+                            <label for="${optionId}">${option}</label>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            } else if (question.question_type === 'fill_in_blank') {
+                html += `
+                    <div class="fill-blank">
+                        <input type="text" name="q${question.id}" class="fill-blank-input" placeholder="Your answer">
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+        });
+
+        html += `
+                <div class="quiz-actions">
+                    <button type="submit" class="btn btn-primary">Submit Answers</button>
+                </div>
+            </form>
+        `;
+
+        quizContainer.innerHTML = html;
+
+        // Add event listener for form submission
+        const quizForm = document.getElementById('quiz-form');
+        quizForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitQuiz(quiz.id, questions);
+        });
+    }
+
+    // Function to submit quiz answers
+    function submitQuiz(quizId, questions) {
+        const answers = {};
+        
+        questions.forEach(question => {
+            if (question.question_type === 'multiple_choice') {
+                const selectedOption = document.querySelector(`input[name="q${question.id}"]:checked`);
+                answers[question.id] = selectedOption ? selectedOption.value : null;
+            } else if (question.question_type === 'fill_in_blank') {
+                const input = document.querySelector(`input[name="q${question.id}"]`);
+                answers[question.id] = input ? input.value : null;
+            }
+        });
+        
+        fetch('/submit_quiz', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                quiz_id: quizId,
+                answers: answers
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show results
+                let resultMessage = `You scored ${data.score}%.\n`;
+                if (data.passed) {
+                    resultMessage += 'Congratulations! You passed the quiz.';
+                } else {
+                    resultMessage += 'You did not pass. Consider reviewing the material and trying again.';
+                }
+                
+                alert(resultMessage);
+                
+                // Refresh page to update progress
+                window.location.reload();
+            } else {
+                alert('Failed to submit quiz: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error submitting quiz: ' + error);
+        });
+    }
+
+    // Load Video Content button
+    const loadVideosBtn = document.querySelector('.load-videos-btn');
+    if (loadVideosBtn) {
+        loadVideosBtn.addEventListener('click', function() {
+            const moduleId = this.dataset.moduleId;
+            
+            // Show loading state
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finding content...';
+            this.disabled = true;
+            
+            // Send request to generate module content
+            fetch(`/generate_module_content/${moduleId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Refresh page to show new content
+                    window.location.reload();
+                } else {
+                    // Show error
+                    this.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error finding content';
+                    console.error('Failed to load videos:', data.error);
+                }
+            })
+            .catch(error => {
+                this.innerHTML = '<i class="fas fa-exclamation-circle"></i> Try again';
+                this.disabled = false;
+                console.error('Error loading videos:', error);
+            });
+        });
+    }
+
+    // Video action buttons functionality
+    const takeNotesBtn = document.getElementById('takeNotesBtn');
+    const bookmarkVideoBtn = document.getElementById('bookmarkVideoBtn');
+    const shareVideoBtn = document.getElementById('shareVideoBtn');
+    const downloadResourcesBtn = document.getElementById('downloadResourcesBtn');
+    
+    if (takeNotesBtn) {
+        takeNotesBtn.addEventListener('click', function() {
+            // Create a notes panel
+            let notesPanel = document.getElementById('notes-panel');
+            if (!notesPanel) {
+                notesPanel = document.createElement('div');
+                notesPanel.id = 'notes-panel';
+                notesPanel.classList.add('notes-panel');
+                notesPanel.innerHTML = `
+                    <div class="notes-header">
+                        <h3><i class="fas fa-sticky-note"></i> Module Notes</h3>
+                        <button class="close-notes-btn"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="notes-tabs">
+                        <div class="notes-tab active" data-tab="my-notes">My Notes</div>
+                        <div class="notes-tab" data-tab="shared-notes">Shared Notes</div>
+                        <div class="notes-tab" data-tab="auto-notes">AI Summary</div>
+                    </div>
+                    <div class="notes-toolbar">
+                        <button class="notes-toolbar-btn" data-action="bold" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button class="notes-toolbar-btn" data-action="italic" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button class="notes-toolbar-btn" data-action="underline" title="Underline"><i class="fas fa-underline"></i></button>
+                        <div class="notes-toolbar-divider"></div>
+                        <button class="notes-toolbar-btn" data-action="bullet" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                        <button class="notes-toolbar-btn" data-action="number" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                        <div class="notes-toolbar-divider"></div>
+                        <button class="notes-toolbar-btn" data-action="heading" title="Heading"><i class="fas fa-heading"></i></button>
+                        <button class="notes-toolbar-btn" data-action="code" title="Code"><i class="fas fa-code"></i></button>
+                    </div>
+                    <div class="notes-content">
+                        <textarea class="notes-textarea" placeholder="Take notes for this module here..."></textarea>
+                        <button class="notes-timestamp-btn"><i class="fas fa-clock"></i> Add Timestamp</button>
+                    </div>
+                    <div class="notes-actions">
+                        <div class="notes-meta">
+                            <span class="word-count">0 words</span>
+                        </div>
+                        <button class="notes-save-btn"><i class="fas fa-save"></i> Save Notes</button>
+                    </div>
+                `;
+                document.querySelector('.video-container').appendChild(notesPanel);
+                
+                // Initialize the notes functionality
+                initializeNotes(notesPanel, player);
+            }
+            
+            // Toggle notes panel
+            notesPanel.classList.toggle('active');
+        });
+    }
+    
+    // Function to initialize notes functionality
+    function initializeNotes(panel, videoPlayer) {
+        const closeBtn = panel.querySelector('.close-notes-btn');
+        const saveBtn = panel.querySelector('.notes-save-btn');
+        const textarea = panel.querySelector('.notes-textarea');
+        const timestampBtn = panel.querySelector('.notes-timestamp-btn');
+        const tabs = panel.querySelectorAll('.notes-tab');
+        const toolbarBtns = panel.querySelectorAll('.notes-toolbar-btn');
+        const wordCount = panel.querySelector('.word-count');
+        
+        // Initialize word counter
+        function updateWordCount() {
+            const text = textarea.value.trim();
+            const count = text ? text.split(/\s+/).length : 0;
+            wordCount.textContent = `${count} word${count !== 1 ? 's' : ''}`;
+        }
+        
+        // Close notes panel
+        closeBtn.addEventListener('click', function() {
+            panel.classList.remove('active');
+        });
+        
+        // Save notes functionality
+        saveBtn.addEventListener('click', function() {
+            const notes = textarea.value;
+            if (notes.trim() === '') {
+                showToast('Please enter some notes before saving');
+                return;
+            }
+            
+            // In a real app, you would save these notes to a database
+            const saveIcon = saveBtn.querySelector('i');
+            const originalText = saveBtn.textContent;
+            
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+            
+            // Simulate saving
+            setTimeout(() => {
+                saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+                
+                setTimeout(() => {
+                    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Notes';
+                    saveBtn.disabled = false;
+                }, 1500);
+                
+                showToast('Notes saved successfully!');
+            }, 1000);
+        });
+        
+        // Add timestamp to notes
+        timestampBtn.addEventListener('click', function() {
+            // Get current video time
+            const currentTime = videoPlayer.currentTime;
+            const formattedTime = formatTime(currentTime);
+            
+            // Insert timestamp at cursor position
+            const cursorPos = textarea.selectionStart;
+            const textBefore = textarea.value.substring(0, cursorPos);
+            const textAfter = textarea.value.substring(cursorPos);
+            
+            textarea.value = textBefore + ` [${formattedTime}] ` + textAfter;
+            
+            // Update cursor position
+            textarea.selectionStart = cursorPos + formattedTime.length + 4; // +4 for [ ] and spaces
+            textarea.selectionEnd = textarea.selectionStart;
+            textarea.focus();
+            
+            // Update word count
+            updateWordCount();
+        });
+        
+        // Tab switching functionality
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tabName = this.dataset.tab;
+                
+                // In a real implementation, you would load different note content here
+                if (tabName === 'auto-notes') {
+                    textarea.value = "Loading AI-generated summary...";
+                    textarea.disabled = true;
+                    
+                    // Simulate loading AI summary
+                    setTimeout(() => {
+                        textarea.value = `# AI-Generated Summary for ${document.querySelector('.current-module').textContent}\n\n` + 
+                            "This video covers the fundamental concepts of the topic with practical examples. Key points:\n\n" +
+                            "1. Introduction to core principles\n" +
+                            "2. Practical applications with examples\n" +
+                            "3. Best practices and common pitfalls\n" +
+                            "4. Advanced techniques for optimization\n\n" +
+                            "The most important concept explained is at [02:14] where the core methodology is demonstrated.";
+                        textarea.disabled = false;
+                        updateWordCount();
+                    }, 1500);
+                } else if (tabName === 'shared-notes') {
+                    textarea.value = "Loading shared notes...";
+                    textarea.disabled = true;
+                    
+                    // Simulate loading shared notes
+                    setTimeout(() => {
+                        textarea.value = "No shared notes available for this module yet. Be the first to contribute!";
+                        textarea.disabled = false;
+                        updateWordCount();
+                    }, 1000);
+                } else {
+                    // Load my notes
+                    textarea.disabled = false;
+                    // In a real app, you would load the user's saved notes
+                    if (textarea.value === "Loading AI-generated summary..." || 
+                        textarea.value === "Loading shared notes..." ||
+                        textarea.value === "No shared notes available for this module yet. Be the first to contribute!") {
+                        textarea.value = "";
+                    }
+                }
+            });
+        });
+        
+        // Text formatting toolbar
+        toolbarBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.dataset.action;
+                
+                // Handle each formatting action
+                switch(action) {
+                    case 'bold':
+                        insertFormatting('**', '**');
+                        break;
+                    case 'italic':
+                        insertFormatting('*', '*');
+                        break;
+                    case 'underline':
+                        insertFormatting('__', '__');
+                        break;
+                    case 'bullet':
+                        insertAtLineStart('- ');
+                        break;
+                    case 'number':
+                        insertNumberedList();
+                        break;
+                    case 'heading':
+                        insertAtLineStart('# ');
+                        break;
+                    case 'code':
+                        insertFormatting('`', '`');
+                        break;
+                }
+                
+                // Update word count
+                updateWordCount();
+            });
+        });
+        
+        // Helper function to insert formatting around selected text
+        function insertFormatting(prefix, suffix) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const selectedText = textarea.value.substring(start, end);
+            
+            if (start === end) {
+                // No selection, insert placeholder
+                const placeholder = prefix === '`' ? 'code' : 'text';
+                textarea.value = textarea.value.substring(0, start) + 
+                                prefix + placeholder + suffix + 
+                                textarea.value.substring(end);
+                
+                // Place cursor in the middle of the formatting
+                const cursorPos = start + prefix.length;
+                textarea.selectionStart = cursorPos;
+                textarea.selectionEnd = cursorPos + placeholder.length;
+            } else {
+                // Apply formatting to selection
+                textarea.value = textarea.value.substring(0, start) + 
+                                prefix + selectedText + suffix + 
+                                textarea.value.substring(end);
+                
+                // Keep the text selected
+                textarea.selectionStart = start + prefix.length;
+                textarea.selectionEnd = end + prefix.length;
+            }
+            
+            textarea.focus();
+        }
+        
+        // Helper function to insert at the start of the current line
+        function insertAtLineStart(prefix) {
+            const start = textarea.selectionStart;
+            const text = textarea.value;
+            
+            // Find the beginning of the current line
+            let lineStart = start;
+            while (lineStart > 0 && text[lineStart - 1] !== '\n') {
+                lineStart--;
+            }
+            
+            // Check if the line already starts with the prefix
+            if (text.substring(lineStart, lineStart + prefix.length) === prefix) {
+                // Remove the prefix
+                textarea.value = text.substring(0, lineStart) + 
+                                text.substring(lineStart + prefix.length);
+                
+                // Adjust cursor position
+                if (start >= lineStart + prefix.length) {
+                    textarea.selectionStart = start - prefix.length;
+                    textarea.selectionEnd = textarea.selectionStart;
+                }
+            } else {
+                // Add the prefix
+                textarea.value = text.substring(0, lineStart) + 
+                                prefix + 
+                                text.substring(lineStart);
+                
+                // Adjust cursor position
+                if (start >= lineStart) {
+                    textarea.selectionStart = start + prefix.length;
+                    textarea.selectionEnd = textarea.selectionStart;
+                }
+            }
+            
+            textarea.focus();
+        }
+        
+        // Helper function to insert numbered list
+        function insertNumberedList() {
+            const start = textarea.selectionStart;
+            const text = textarea.value;
+            
+            // Find the beginning of the current line
+            let lineStart = start;
+            while (lineStart > 0 && text[lineStart - 1] !== '\n') {
+                lineStart--;
+            }
+            
+            // Check if there's already a numbered list
+            const match = text.substring(lineStart).match(/^(\d+)\.\s/);
+            
+            if (match) {
+                // Already a numbered list, increment for next line
+                const num = parseInt(match[1]);
+                const prefix = `${num + 1}. `;
+                
+                // Insert newline and next number
+                const insertPos = text.indexOf('\n', lineStart) !== -1 ? 
+                                text.indexOf('\n', lineStart) : text.length;
+                
+                textarea.value = text.substring(0, insertPos) + 
+                                '\n' + prefix + 
+                                text.substring(insertPos);
+                
+                // Set cursor position after the prefix
+                textarea.selectionStart = insertPos + 1 + prefix.length;
+                textarea.selectionEnd = textarea.selectionStart;
+            } else {
+                // Start a new numbered list
+                insertAtLineStart('1. ');
+            }
+            
+            textarea.focus();
+        }
+        
+        // Format time (seconds) to MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        // Add event listener for text changes to update word count
+        textarea.addEventListener('input', updateWordCount);
+        
+        // Initialize word count
+        updateWordCount();
+    }
+
+    // Bookmark video functionality
+    if (bookmarkVideoBtn) {
+        bookmarkVideoBtn.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            // Toggle bookmark
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                // In a real app, this would save the bookmark
+                // Display a success message
+                showToast('Video bookmarked successfully!');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                showToast('Bookmark removed');
+            }
+        });
+    }
+    
+    // Share video functionality
+    if (shareVideoBtn) {
+        shareVideoBtn.addEventListener('click', function() {
+            // Get current URL
+            const videoUrl = window.location.href;
+            // Copy to clipboard
+            navigator.clipboard.writeText(videoUrl).then(() => {
+                showToast('Link copied to clipboard!');
+            }).catch(() => {
+                alert('Failed to copy link. Please copy the URL manually.');
+            });
+        });
+    }
+    
+    // Download resources functionality
+    if (downloadResourcesBtn) {
+        downloadResourcesBtn.addEventListener('click', function() {
+            // In a real app, this would show a resources panel or download modal
+            showToast('Downloading resources...');
+            // Simulate download completion after delay
+            setTimeout(() => {
+                showToast('Resources downloaded successfully!');
+            }, 2000);
+        });
+    }
+    
+    // Toast message function
+    function showToast(message) {
+        let toast = document.getElementById('toast-message');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast-message';
+            toast.classList.add('toast-message');
+            document.body.appendChild(toast);
+        }
+        
+        toast.textContent = message;
+        toast.classList.add('show');
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+});
+</script>
+{% endblock %} 

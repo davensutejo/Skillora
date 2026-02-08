@@ -28,11 +28,6 @@ playwright>=1.40.0
 # Async Support
 asyncio>=3.4.3
 
-# Animation & Visualization (Manim) - Minimal set
-# Core manim only - removed problematic dependencies
-manim>=0.18.0
-manim-fonts>=0.5.0
-
 # Audio & Speech
 SpeechRecognition>=3.10.0
 pydub>=0.25.0
@@ -41,3 +36,8 @@ Pillow>=11.0
 # Utilities
 tqdm>=4.65.0
 numpy>=2.1.0
+
+# Note: Manim packages removed to resolve deployment conflicts
+# These can be added back later in a separate environment or after resolving version constraints
+# manim - animation generation (not critical for core functionality)
+# manim-fonts - font support

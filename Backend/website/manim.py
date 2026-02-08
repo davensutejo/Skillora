@@ -13,6 +13,15 @@ from datetime import datetime, timedelta
 import shutil
 from flask import url_for
 
+# Try to import manim - it's optional for deployment
+try:
+    import manim
+    MANIM_AVAILABLE = True
+except ImportError:
+    MANIM_AVAILABLE = False
+    logger_temp = logging.getLogger(__name__)
+    logger_temp.warning("Manim not available - animation generation will be disabled")
+
 # --- Configure Logging ---
 import os
 log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "manim_generator.log")

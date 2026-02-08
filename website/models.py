@@ -6,6 +6,7 @@ from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, T
 from sqlalchemy.orm import relationship
 import json
 
+
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.String(10000))
@@ -19,7 +20,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
-
+    
+    # Additional profile fields
     username = db.Column(db.String(50), unique=True, nullable=True)
     phone = db.Column(db.String(20), nullable=True)
     date_of_birth = db.Column(db.Date, nullable=True)
@@ -31,7 +33,7 @@ class User(db.Model, UserMixin):
     website = db.Column(db.String(255), nullable=True)
     timezone = db.Column(db.String(50), nullable=True)
     
-    # Status
+    # Account status and settings
     is_active = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
     is_survey_completed = db.Column(db.Boolean, default=False)  # Track if CS interests survey is completed
@@ -39,7 +41,7 @@ class User(db.Model, UserMixin):
     created_at = db.Column(db.DateTime(timezone=True), default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), default=func.now(), onupdate=func.now())
     
-    # Notiv
+    # Notification and privacy settings
     email_notifications = db.Column(db.Boolean, default=True)
     public_profile = db.Column(db.Boolean, default=True)
     show_courses = db.Column(db.Boolean, default=True)
@@ -50,6 +52,7 @@ class User(db.Model, UserMixin):
     courses = db.relationship('Course')
     achievements = db.relationship('Achievement', back_populates='user')
     user_progress = db.relationship('UserProgress', back_populates='user')
+    schedules = db.relationship('Schedule', back_populates='user')
     cs_survey = db.relationship('CSInterestSurvey', backref='user', uselist=False)
     learning_path = db.relationship('LearningPath')
     cs_interest = db.relationship('CSInterest')
@@ -58,6 +61,8 @@ class User(db.Model, UserMixin):
     def __repr__(self):
         return f'User({self.id}, {self.email})'
 
+
+# Course and related models
 class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
@@ -103,6 +108,7 @@ class Module(db.Model):
     description = db.Column(db.String(1000))
     content_type = db.Column(db.String(50), default="video")  # video, reading, exercise
     youtube_links = db.Column(db.Text)  # JSON string of YouTube URLs
+    manim_video_path = db.Column(db.String(255))  # Path to the generated Manim video
     order = db.Column(db.Integer)  # Order of module in course
     estimated_time_minutes = db.Column(db.Integer, default=30)
     date_created = db.Column(db.DateTime(timezone=True), default=func.now())
@@ -117,6 +123,197 @@ class Module(db.Model):
         if self.youtube_links:
             return json.loads(self.youtube_links)
         return []
+        
+    def get_video_url(self):
+        """Return the URL to the video (Manim video or first YouTube link)"""
+        if self.manim_video_path:
+            try:
+                # Import from manim.py instead of manim_utils
+                from .manim import get_module_video_url
+                return get_module_video_url(self)
+            except ImportError:
+                # Fall back to the old approach if the function is not available
+                try:
+                    # Try to get a relative path from the absolute path
+                    if 'static/' in self.manim_video_path:
+                        relative_path = self.manim_video_path.split('static/')[1]
+                        from flask import url_for
+                        return url_for('static', filename=relative_path)
+                    
+                    # Try with backslashes for Windows paths
+                    if 'static\\' in self.manim_video_path:
+                        # Replace backslashes with forward slashes for URL
+                        relative_path = self.manim_video_path.split('static\\')[1].replace('\\', '/')
+                        from flask import url_for
+                        return url_for('static', filename=relative_path)
+                    
+                    # If we can't determine the relative path, return the full path
+                    return self.manim_video_path
+                except Exception as e:
+                    print(f"Error getting video URL: {e}")
+                    # Fall back to YouTube if there's an error
+                    youtube_links = self.get_youtube_links()
+                    return youtube_links[0] if youtube_links else None
+        
+        # Fall back to YouTube links if no Manim video
+        youtube_links = self.get_youtube_links()
+        return youtube_links[0] if youtube_links else None
+        
+    def has_manim_video(self):
+        """Check if this module has a generated Manim video"""
+        return bool(self.manim_video_path)
+        
+    def get_video_metadata(self, api_key=None):
+        """Get metadata for the videos to allow for better filtering"""
+        if not self.youtube_links or not api_key:
+            return []
+            
+        video_ids = []
+        for link in self.get_youtube_links():
+            # Extract video ID from YouTube URL
+            if 'youtube.com/watch?v=' in link:
+                video_id = link.split('v=')[1].split('&')[0]
+            elif 'youtu.be/' in link:
+                video_id = link.split('/')[-1]
+            else:
+                continue
+            video_ids.append(video_id)
+            
+        if not video_ids:
+            return []
+            
+        try:
+            # This would use the YouTube Data API to get video details
+            # In a real implementation, you would make an API call like:
+            # https://www.googleapis.com/youtube/v3/videos?id=video_id1,video_id2&part=snippet,contentDetails,statistics&key=YOUR_API_KEY
+            # For now, we'll simulate the response
+            
+            # Sample metadata structure
+            metadata = []
+            for video_id in video_ids:
+                # In a real implementation, this would be fetched from the API
+                metadata.append({
+                    'id': video_id,
+                    'title': 'Video title',
+                    'description': 'Video description',
+                    'duration': 'PT15M',  # ISO 8601 duration format
+                    'viewCount': '10000',
+                    'likeCount': '500',
+                    'dislikeCount': '50',
+                    'tags': ['education', 'tutorial'],
+                    'publishedAt': '2021-01-01T00:00:00Z'
+                })
+            return metadata
+        except Exception as e:
+            print(f"Error fetching video metadata: {e}")
+            return []
+            
+    def filter_videos_by_preference(self, user_preferences, api_key=None):
+        """
+        Filter videos based on user preferences
+        
+        Args:
+            user_preferences: Dict containing learning_style and preferred_duration
+            api_key: YouTube API key for fetching metadata
+            
+        Returns:
+            List of videos sorted by preference match
+        """
+        if not self.youtube_links:
+            return []
+            
+        videos = self.get_youtube_links()
+        metadata = self.get_video_metadata(api_key)
+        
+        # Match videos with their metadata
+        video_data = []
+        for i, video in enumerate(videos):
+            video_info = {
+                'url': video,
+                'score': 0  # Initial score
+            }
+            
+            # Add metadata if available
+            if i < len(metadata):
+                video_info['metadata'] = metadata[i]
+                
+                # Calculate duration in minutes if metadata exists
+                if 'duration' in metadata[i]:
+                    duration_str = metadata[i]['duration']
+                    # Parse ISO 8601 duration (simplified)
+                    minutes = 0
+                    if 'M' in duration_str:
+                        m_pos = duration_str.find('M')
+                        t_pos = duration_str.find('T')
+                        if t_pos != -1 and t_pos < m_pos:
+                            minutes_str = duration_str[t_pos+1:m_pos]
+                            try:
+                                minutes = int(minutes_str)
+                            except ValueError:
+                                pass
+                    video_info['duration_minutes'] = minutes
+                    
+                    # Score based on preferred duration
+                    if 'preferred_duration' in user_preferences:
+                        preferred_minutes = user_preferences['preferred_duration']
+                        # Higher score for videos closer to preferred duration
+                        duration_diff = abs(minutes - preferred_minutes)
+                        if duration_diff <= 5:
+                            video_info['score'] += 3  # Very close to preferred time
+                        elif duration_diff <= 10:
+                            video_info['score'] += 2  # Reasonably close
+                        elif duration_diff <= 15:
+                            video_info['score'] += 1  # Still acceptable
+                        
+                # Score based on engagement metrics
+                if 'viewCount' in metadata[i] and 'likeCount' in metadata[i]:
+                    try:
+                        views = int(metadata[i]['viewCount'])
+                        likes = int(metadata[i]['likeCount'])
+                        
+                        # Engagement ratio (likes/views)
+                        if views > 0:
+                            engagement = likes / views
+                            if engagement > 0.1:  # More than 10% engagement
+                                video_info['score'] += 3
+                            elif engagement > 0.05:  # More than 5% engagement
+                                video_info['score'] += 2
+                            elif engagement > 0.01:  # More than 1% engagement
+                                video_info['score'] += 1
+                    except (ValueError, ZeroDivisionError):
+                        pass
+                
+                # Score based on learning style
+                if 'learning_style' in user_preferences and 'tags' in metadata[i]:
+                    style = user_preferences['learning_style']
+                    tags = metadata[i]['tags']
+                    
+                    style_keywords = {
+                        'visual': ['visual', 'demonstration', 'animation', 'diagram'],
+                        'auditory': ['lecture', 'discussion', 'explanation', 'talk'],
+                        'hands-on': ['practical', 'tutorial', 'hands-on', 'exercise', 'project']
+                    }
+                    
+                    # Check if video tags match the learning style
+                    if style in style_keywords:
+                        matching_tags = set(tags).intersection(style_keywords[style])
+                        video_info['score'] += len(matching_tags)  # Score based on number of matching tags
+                        
+                    # Extra points if title or description contains style keywords
+                    title_desc = metadata[i]['title'] + ' ' + metadata[i]['description']
+                    title_desc = title_desc.lower()
+                    
+                    for keyword in style_keywords.get(style, []):
+                        if keyword.lower() in title_desc:
+                            video_info['score'] += 1
+                            
+            video_data.append(video_info)
+        
+        # Sort videos by score (highest first)
+        sorted_videos = sorted(video_data, key=lambda x: x.get('score', 0), reverse=True)
+        
+        # Return the sorted list of video URLs
+        return [video['url'] for video in sorted_videos]
 
 
 # Updated Lesson model
@@ -179,6 +376,27 @@ class UserProgress(db.Model):
     user = db.relationship('User', back_populates='user_progress')
     module = db.relationship('Module', backref='progress', lazy=True)
 
+
+# New Schedule model
+class Schedule(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    start_time = db.Column(db.DateTime(timezone=True), nullable=False)
+    end_time = db.Column(db.DateTime(timezone=True), nullable=False)
+    is_recurring = db.Column(db.Boolean, default=False)
+    recurrence_pattern = db.Column(db.String(100), nullable=True)  # daily, weekly, monthly
+    recurrence_end_date = db.Column(db.DateTime(timezone=True), nullable=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=True)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'), nullable=True)
+    created_at = db.Column(db.DateTime(timezone=True), default=func.now())
+    updated_at = db.Column(db.DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    user = db.relationship('User', back_populates='schedules')
+    course = db.relationship('Course')
+    lesson = db.relationship('Lesson')
 
 
 # New Resource model
@@ -312,6 +530,7 @@ class CSInterestSurvey(db.Model):
         return f'CSInterestSurvey(user_id={self.user_id})'
 
 
+# Add CSInterest which will store the user's learning preferences
 class CSInterest(db.Model):
     __tablename__ = 'cs_interest'
     
@@ -338,6 +557,7 @@ class Quiz(db.Model):
     questions = db.relationship('QuizQuestion', backref='quiz', cascade='all, delete-orphan')
 
 
+# Quiz Question model
 class QuizQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question_text = db.Column(db.String(500))
@@ -357,6 +577,7 @@ class QuizQuestion(db.Model):
         return []
 
 
+# User Quiz Attempt model
 class QuizAttempt(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer)  # Score as a percentage
@@ -367,3 +588,16 @@ class QuizAttempt(db.Model):
     # Relationships
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'))
+
+
+class UserSettings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    theme = db.Column(db.String(20), default='light')  # 'light' or 'dark'
+    preferred_video_duration = db.Column(db.Integer, default=15)  # in minutes
+    notification_enabled = db.Column(db.Boolean, default=True)
+    daily_goal_minutes = db.Column(db.Integer, default=30)
+    language = db.Column(db.String(10), default='en')
+    
+    # Relationships
+    user = db.relationship('User', backref='settings')

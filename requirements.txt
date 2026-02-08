@@ -1,32 +1,50 @@
-pip==25.0.1
+# Core Framework & Web
 Flask==2.3.3
-Flask-SQLAlchemy==3.1.1
-Flask-Login==0.6.2
-Flask-Migrate==4.0.5
 Werkzeug==2.3.7
-SQLAlchemy==2.0.40
-alembic==1.12.1
-email-validator==2.1.0.post1
 Jinja2==3.1.2
-itsdangerous==2.1.2
 click==8.1.7
+itsdangerous==2.1.2
+
+# Database & ORM
+SQLAlchemy==2.0.46
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+alembic==1.12.1
+
+# Authentication & Security
+Flask-Login==0.6.2
+email-validator==2.1.0.post1
+
+# HTTP & Networking
 requests==2.31.0
-python-dotenv
-playwright
-asyncio
-manim
-manim-algorithm 
-manim-revealjs
-manim-voiceover[elevenlabs]
-manim-voiceover[gtts]
-manim-neural-network
-manim-ml
-manim-fonts
-manim-code-blocks
-setuptools
-browser_use
+urllib3<3,>=1.21.1
 
+# Environment Configuration
+python-dotenv>=1.0.0
 
-#ffmpeg -> path
-#sox -> path
-#rustup -> path
+# Browser Automation & Web Scraping
+playwright>=1.40.0
+
+# Async Support
+asyncio>=3.4.3
+
+# Animation & Visualization (Manim)
+manim>=0.19.0
+manim-algorithm>=0.0.4
+manim-editor>=0.3.0
+manim-revealjs>=1.0.0
+manim-speech>=0.2.0
+manim-neural-network>=0.1.0
+manim-ml>=0.0.20
+manim-fonts>=0.5.0
+manim-data-structures>=0.1.4
+manim-code-blocks>=1.0.10
+
+# Audio & Speech
+SpeechRecognition>=3.10.0
+pydub>=0.25.0
+Pillow>=11.0
+
+# Utilities
+tqdm>=4.65.0
+numpy>=2.1.0

@@ -29,21 +29,12 @@ playwright>=1.40.0
 asyncio>=3.4.3
 
 # Animation & Visualization (Manim)
-# Note: Carefully pinned for compatibility
-# manim-editor 0.3.7+ requires manim 0.13.1-0.14.0
-# manim-editor 0.3.0-0.3.6 requires manim 0.12.0-0.13.0
-# Using 0.13.x as middle ground
-manim==0.13.3
-manim-algorithm>=0.0.4
-manim-editor==0.3.8
+# Core manim package for animation generation
+manim>=0.18.0
+# Removed manim-editor due to incompatible version constraints with manim
+# Core manim functionality is sufficient for course video generation
 manim-revealjs>=1.0.0
-# Commenting out optional manim speech/neural packages to reduce dependency complexity
-# manim-speech>=0.2.0
-# manim-neural-network>=0.1.0
-# manim-ml>=0.0.20
 manim-fonts>=0.5.0
-# manim-data-structures>=0.1.4
-# manim-code-blocks>=1.0.10
 
 # Audio & Speech
 SpeechRecognition>=3.10.0

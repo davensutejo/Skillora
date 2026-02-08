@@ -28,12 +28,9 @@ playwright>=1.40.0
 # Async Support
 asyncio>=3.4.3
 
-# Animation & Visualization (Manim)
-# Core manim package for animation generation
+# Animation & Visualization (Manim) - Minimal set
+# Core manim only - removed problematic dependencies
 manim>=0.18.0
-# Removed manim-editor due to incompatible version constraints with manim
-# Core manim functionality is sufficient for course video generation
-manim-revealjs>=1.0.0
 manim-fonts>=0.5.0
 
 # Audio & Speech
